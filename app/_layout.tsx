@@ -26,10 +26,9 @@ export default function RootLayout() {
 
   useEffect(() => {
     if (fontsLoaded || fontError) {
-      // Hide the splash screen
+
       SplashScreen.hideAsync();
-      
-      // Notify framework ready (for web)
+
       if (fontsLoaded) {
         window.frameworkReady?.();
       }

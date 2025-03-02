@@ -21,20 +21,20 @@ export default function HomeScreen() {
   useEffect(() => {
     const loadData = async () => {
       await initializeAppData();
-      
+
       const loadedExercises = await getExercises();
       setExercises(loadedExercises);
-      
+
       const loadedWorkouts = await getWorkoutPlans();
       setWorkouts(loadedWorkouts);
-      
+
       // Set a random workout as featured
       if (loadedWorkouts.length > 0) {
         const randomIndex = Math.floor(Math.random() * loadedWorkouts.length);
         setFeaturedWorkout(loadedWorkouts[randomIndex]);
       }
     };
-    
+
     loadData();
   }, []);
 
@@ -48,7 +48,7 @@ export default function HomeScreen() {
     await toggleWorkoutPlanFavorite(id);
     const updatedWorkouts = await getWorkoutPlans();
     setWorkouts(updatedWorkouts);
-    
+
     // Update featured workout if it was the one toggled
     if (featuredWorkout && featuredWorkout.id === id) {
       const updatedFeatured = updatedWorkouts.find(w => w.id === id);
@@ -65,14 +65,23 @@ export default function HomeScreen() {
   };
 
   const exerciseCategories = [...new Set(exercises.map(ex => ex.category))];
-  
+
   const filteredExercises = exercises
-    .filter(ex => 
+    .filter(ex =>
       ex.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
       ex.description.toLowerCase().includes(searchQuery.toLowerCase())
     )
     .filter(ex => selectedCategory ? ex.category === selectedCategory : true)
-    .slice(0, 6); // Limit to 6 exercises for the home screen
+    .slice(0, 3); // Reduced from 6 to 3 exercises
+
+  // Filter workouts similar to exercises
+  const filteredWorkouts = workouts
+    .filter(w =>
+      w.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      w.description.toLowerCase().includes(searchQuery.toLowerCase())
+    )
+    .filter(w => featuredWorkout ? w.id !== featuredWorkout.id : true) // Exclude featured workout
+    .slice(0, 3); // Show only 3 workouts
 
   return (
     <SafeAreaView style={styles.safeArea}>
@@ -81,21 +90,21 @@ export default function HomeScreen() {
           <Text style={styles.greeting}>Hello,</Text>
           <Text style={styles.title}>Ready to workout?</Text>
         </View>
-        
-        <SearchBar 
+
+        <SearchBar
           value={searchQuery}
           onChangeText={setSearchQuery}
           placeholder="Search exercises or workouts..."
         />
-        
+
         {featuredWorkout && (
           <View style={styles.featuredContainer}>
             <Text style={styles.sectionTitle}>Featured Workout</Text>
-            <WorkoutCard 
-              workout={featuredWorkout} 
-              onToggleFavorite={handleToggleWorkoutFavorite} 
+            <WorkoutCard
+              workout={featuredWorkout}
+              onToggleFavorite={handleToggleWorkoutFavorite}
             />
-            <TouchableOpacity 
+            <TouchableOpacity
               style={styles.startButton}
               onPress={handleStartFeaturedWorkout}
             >
@@ -104,33 +113,56 @@ export default function HomeScreen() {
             </TouchableOpacity>
           </View>
         )}
-        
+
         <View style={styles.exercisesContainer}>
           <Text style={styles.sectionTitle}>Exercises</Text>
-          
-          <CategoryFilter 
+
+          <CategoryFilter
             categories={exerciseCategories}
             selectedCategory={selectedCategory}
             onSelectCategory={setSelectedCategory}
           />
-          
+
           {filteredExercises.map(exercise => (
-            <ExerciseCard 
+            <ExerciseCard
               key={exercise.id}
               exercise={exercise}
               onToggleFavorite={handleToggleExerciseFavorite}
             />
           ))}
-          
+
           {filteredExercises.length === 0 && (
             <Text style={styles.emptyText}>No exercises found</Text>
           )}
-          
-          <TouchableOpacity 
+
+          <TouchableOpacity
             style={styles.viewAllButton}
             onPress={() => router.push('/workouts')}
           >
             <Text style={styles.viewAllText}>View All Exercises</Text>
+          </TouchableOpacity>
+        </View>
+
+        <View style={styles.workoutsContainer}>
+          <Text style={styles.sectionTitle}>Workouts</Text>
+
+          {filteredWorkouts.map(workout => (
+            <WorkoutCard
+              key={workout.id}
+              workout={workout}
+              onToggleFavorite={handleToggleWorkoutFavorite}
+            />
+          ))}
+
+          {filteredWorkouts.length === 0 && (
+            <Text style={styles.emptyText}>No additional workouts found</Text>
+          )}
+
+          <TouchableOpacity
+            style={styles.viewAllButton}
+            onPress={() => router.push('/workouts')}
+          >
+            <Text style={styles.viewAllText}>View All Workouts</Text>
           </TouchableOpacity>
         </View>
       </ScrollView>
@@ -193,6 +225,12 @@ const styles = StyleSheet.create({
   exercisesContainer: {
     padding: 16,
     paddingTop: 8,
+    paddingBottom: 0,
+  },
+  workoutsContainer: {
+    padding: 16,
+    paddingTop: 8,
+    paddingBottom: 24,
   },
   emptyText: {
     textAlign: 'center',
