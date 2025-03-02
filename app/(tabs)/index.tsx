@@ -9,6 +9,7 @@ import ExerciseCard from '../../components/ExerciseCard';
 import WorkoutCard from '../../components/WorkoutCard';
 import SearchBar from '../../components/SearchBar';
 import CategoryFilter from '../../components/CategoryFilter';
+import { useFocusEffect } from '@react-navigation/native';
 
 export default function HomeScreen() {
   const router = useRouter();
@@ -18,34 +19,45 @@ export default function HomeScreen() {
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
   const [featuredWorkout, setFeaturedWorkout] = useState<WorkoutPlan | null>(null);
 
+  const loadData = async () => {
+    await initializeAppData();
+
+    const loadedExercises = await getExercises();
+    setExercises(loadedExercises);
+
+    const loadedWorkouts = await getWorkoutPlans();
+    setWorkouts(loadedWorkouts);
+
+    // Set a random workout as featured
+    if (loadedWorkouts.length > 0) {
+      const randomIndex = Math.floor(Math.random() * loadedWorkouts.length);
+      setFeaturedWorkout(loadedWorkouts[randomIndex]);
+    }
+  };
+
+  // Use useFocusEffect to refresh data whenever the screen comes into focus
+  useFocusEffect(
+    React.useCallback(() => {
+      loadData();
+      return () => {};
+    }, [])
+  );
+
+  // Initial load
   useEffect(() => {
-    const loadData = async () => {
-      await initializeAppData();
-
-      const loadedExercises = await getExercises();
-      setExercises(loadedExercises);
-
-      const loadedWorkouts = await getWorkoutPlans();
-      setWorkouts(loadedWorkouts);
-
-      // Set a random workout as featured
-      if (loadedWorkouts.length > 0) {
-        const randomIndex = Math.floor(Math.random() * loadedWorkouts.length);
-        setFeaturedWorkout(loadedWorkouts[randomIndex]);
-      }
-    };
-
     loadData();
   }, []);
 
   const handleToggleExerciseFavorite = async (id: string) => {
     await toggleExerciseFavorite(id);
+    // Reload data after toggling
     const updatedExercises = await getExercises();
     setExercises(updatedExercises);
   };
 
   const handleToggleWorkoutFavorite = async (id: string) => {
     await toggleWorkoutPlanFavorite(id);
+    // Reload data after toggling
     const updatedWorkouts = await getWorkoutPlans();
     setWorkouts(updatedWorkouts);
 

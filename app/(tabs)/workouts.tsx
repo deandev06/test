@@ -7,6 +7,7 @@ import WorkoutCard from '../../components/WorkoutCard';
 import SearchBar from '../../components/SearchBar';
 import { Plus, Filter } from 'lucide-react-native';
 import { useRouter } from 'expo-router';
+import { useFocusEffect } from '@react-navigation/native';
 
 export default function WorkoutsScreen() {
   const router = useRouter();
@@ -17,26 +18,37 @@ export default function WorkoutsScreen() {
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
   const [filterModalVisible, setFilterModalVisible] = useState(false);
 
+  const loadData = async () => {
+    const loadedExercises = await getExercises();
+    setExercises(loadedExercises);
+
+    const loadedWorkouts = await getWorkoutPlans();
+    setWorkouts(loadedWorkouts);
+  };
+
+  // Use useFocusEffect to refresh data whenever the screen comes into focus
+  useFocusEffect(
+    React.useCallback(() => {
+      loadData();
+      return () => {};
+    }, [])
+  );
+
+  // Initial load
   useEffect(() => {
-    const loadData = async () => {
-      const loadedExercises = await getExercises();
-      setExercises(loadedExercises);
-
-      const loadedWorkouts = await getWorkoutPlans();
-      setWorkouts(loadedWorkouts);
-    };
-
     loadData();
   }, []);
 
   const handleToggleExerciseFavorite = async (id: string) => {
     await toggleExerciseFavorite(id);
+    // Reload data after toggling
     const updatedExercises = await getExercises();
     setExercises(updatedExercises);
   };
 
   const handleToggleWorkoutFavorite = async (id: string) => {
     await toggleWorkoutPlanFavorite(id);
+    // Reload data after toggling
     const updatedWorkouts = await getWorkoutPlans();
     setWorkouts(updatedWorkouts);
   };
