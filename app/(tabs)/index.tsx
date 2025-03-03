@@ -114,8 +114,9 @@ export default function HomeScreen() {
             <Text style={styles.sectionTitle}>Featured Workout</Text>
             <WorkoutCard
               workout={featuredWorkout}
-              onToggleFavorite={handleToggleWorkoutFavorite}
-            />
+              onToggleFavorite={handleToggleWorkoutFavorite} onDelete={function(id: string): void {
+              throw new Error('Function not implemented.');
+            }}            />
             <TouchableOpacity
               style={styles.startButton}
               onPress={handleStartFeaturedWorkout}
@@ -139,8 +140,9 @@ export default function HomeScreen() {
             <ExerciseCard
               key={exercise.id}
               exercise={exercise}
-              onToggleFavorite={handleToggleExerciseFavorite}
-            />
+              onToggleFavorite={handleToggleExerciseFavorite} onDelete={function(id: string): void {
+              throw new Error('Function not implemented.');
+            }}            />
           ))}
 
           {filteredExercises.length === 0 && (
@@ -162,8 +164,9 @@ export default function HomeScreen() {
             <WorkoutCard
               key={workout.id}
               workout={workout}
-              onToggleFavorite={handleToggleWorkoutFavorite}
-            />
+              onToggleFavorite={handleToggleWorkoutFavorite} onDelete={function(id: string): void {
+              throw new Error('Function not implemented.');
+            }}            />
           ))}
 
           {filteredWorkouts.length === 0 && (

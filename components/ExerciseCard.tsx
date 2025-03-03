@@ -1,16 +1,18 @@
-import React from 'react';
-import { View, Text, Image, StyleSheet, TouchableOpacity, Platform } from 'react-native';
-import { Heart } from 'lucide-react-native';
+import React, { useState } from 'react';
+import { View, Text, Image, StyleSheet, TouchableOpacity, Platform, Alert } from 'react-native';
+import { Heart, Trash2 } from 'lucide-react-native';
 import { useRouter } from 'expo-router';
 import { Exercise } from '../types';
 
 interface ExerciseCardProps {
   exercise: Exercise;
   onToggleFavorite: (id: string) => void;
+  onDelete: (id: string) => void;
 }
 
-export default function ExerciseCard({ exercise, onToggleFavorite }: ExerciseCardProps) {
+export default function ExerciseCard({ exercise, onToggleFavorite, onDelete }: ExerciseCardProps) {
   const router = useRouter();
+  const [isDeleting, setIsDeleting] = useState(false);
 
   const handlePress = () => {
     router.push(`/exercise/${exercise.id}`);
@@ -20,34 +22,70 @@ export default function ExerciseCard({ exercise, onToggleFavorite }: ExerciseCar
     onToggleFavorite(exercise.id);
   };
 
+  const handleDeletePress = () => {
+    setIsDeleting(true);
+    Alert.alert(
+      "Delete Exercise",
+      `Are you sure you want to delete "${exercise.name}"?`,
+      [
+        {
+          text: "Cancel",
+          style: "cancel",
+          onPress: () => setIsDeleting(false)
+        },
+        {
+          text: "Delete",
+          style: "destructive",
+          onPress: () => {
+            onDelete(exercise.id);
+            setIsDeleting(false);
+          }
+        }
+      ]
+    );
+  };
+
   return (
-    <TouchableOpacity 
-      style={styles.card} 
+    <TouchableOpacity
+      style={styles.card}
       onPress={handlePress}
       activeOpacity={0.9}
     >
-      <Image 
-        source={{ uri: exercise.imageUrl }} 
-        style={styles.image} 
+      <Image
+        source={{ uri: exercise.imageUrl }}
+        style={styles.image}
         resizeMode="cover"
       />
       <View style={styles.overlay}>
         <View style={styles.contentContainer}>
           <View style={styles.headerContainer}>
             <Text style={styles.title}>{exercise.name}</Text>
-            <TouchableOpacity 
-              style={styles.favoriteButton} 
-              onPress={handleFavoritePress}
-              hitSlop={{ top: 10, right: 10, bottom: 10, left: 10 }}
-            >
-              <Heart 
-                size={22} 
-                color={exercise.isFavorite ? '#FF5757' : '#fff'} 
-                fill={exercise.isFavorite ? '#FF5757' : 'transparent'} 
-              />
-            </TouchableOpacity>
+            <View style={styles.actionButtons}>
+              <TouchableOpacity
+                style={styles.actionButton}
+                onPress={handleDeletePress}
+                hitSlop={{ top: 10, right: 10, bottom: 10, left: 10 }}
+                disabled={isDeleting}
+              >
+                <Trash2
+                  size={22}
+                  color="#fff"
+                />
+              </TouchableOpacity>
+              <TouchableOpacity
+                style={styles.actionButton}
+                onPress={handleFavoritePress}
+                hitSlop={{ top: 10, right: 10, bottom: 10, left: 10 }}
+              >
+                <Heart
+                  size={22}
+                  color={exercise.isFavorite ? '#FF5757' : '#fff'}
+                  fill={exercise.isFavorite ? '#FF5757' : 'transparent'}
+                />
+              </TouchableOpacity>
+            </View>
           </View>
-          
+
           <View style={styles.detailsContainer}>
             <View style={styles.tagContainer}>
               <Text style={styles.tag}>{exercise.category}</Text>
@@ -56,7 +94,7 @@ export default function ExerciseCard({ exercise, onToggleFavorite }: ExerciseCar
                 <Text style={styles.tag}>{exercise.equipment.join(', ')}</Text>
               )}
             </View>
-            
+
             <Text style={styles.description} numberOfLines={2}>
               {exercise.description}
             </Text>
@@ -112,8 +150,13 @@ const styles = StyleSheet.create({
     fontFamily: 'Poppins-SemiBold',
     flex: 1,
   },
-  favoriteButton: {
+  actionButtons: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  actionButton: {
     padding: 4,
+    marginLeft: 8,
   },
   detailsContainer: {
     gap: 8,

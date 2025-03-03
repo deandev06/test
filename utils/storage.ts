@@ -161,3 +161,68 @@ export const clearCurrentSession = async (): Promise<void> => {
     console.error('Error clearing current session:', error);
   }
 };
+
+// Add these functions to your storage.ts file
+
+/**
+ * Delete an exercise from storage
+ * @param id The ID of the exercise to delete
+ * @returns boolean indicating success
+ */
+export async function deleteExercise(id: string): Promise<boolean> {
+  try {
+    // Get current exercises
+    const exercises = await getExercises();
+
+    // Filter out the exercise to delete
+    const updatedExercises = exercises.filter(exercise => exercise.id !== id);
+
+    // Save the updated list
+    await AsyncStorage.setItem('exercises', JSON.stringify(updatedExercises));
+
+    // Also update any workout plans that might include this exercise
+    const workouts = await getWorkoutPlans();
+    const updatedWorkouts = workouts.map(workout => {
+      // Remove the exercise from the workout's exercises list
+      const updatedWorkoutExercises = workout.exercises?.filter(
+        exercise => exercise.exerciseId !== id
+      ) || [];
+
+      return {
+        ...workout,
+        exercises: updatedWorkoutExercises
+      };
+    });
+
+    // Save the updated workouts
+    await AsyncStorage.setItem('workoutPlans', JSON.stringify(updatedWorkouts));
+
+    return true;
+  } catch (error) {
+    console.error('Error deleting exercise:', error);
+    return false;
+  }
+}
+
+/**
+ * Delete a workout plan from storage
+ * @param id The ID of the workout plan to delete
+ * @returns boolean indicating success
+ */
+export async function deleteWorkoutPlan(id: string): Promise<boolean> {
+  try {
+    // Get current workout plans
+    const workouts = await getWorkoutPlans();
+
+    // Filter out the workout plan to delete
+    const updatedWorkouts = workouts.filter(workout => workout.id !== id);
+
+    // Save the updated list
+    await AsyncStorage.setItem('workoutPlans', JSON.stringify(updatedWorkouts));
+
+    return true;
+  } catch (error) {
+    console.error('Error deleting workout plan:', error);
+    return false;
+  }
+}

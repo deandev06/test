@@ -1,16 +1,18 @@
-import React from 'react';
-import { View, Text, Image, StyleSheet, TouchableOpacity, Platform } from 'react-native';
-import { Heart, Clock } from 'lucide-react-native';
+import React, { useState } from 'react';
+import { View, Text, Image, StyleSheet, TouchableOpacity, Platform, Alert } from 'react-native';
+import { Heart, Clock, Trash2 } from 'lucide-react-native';
 import { useRouter } from 'expo-router';
 import { WorkoutPlan } from '../types';
 
 interface WorkoutCardProps {
   workout: WorkoutPlan;
   onToggleFavorite: (id: string) => void;
+  onDelete: (id: string) => void;
 }
 
-export default function WorkoutCard({ workout, onToggleFavorite }: WorkoutCardProps) {
+export default function WorkoutCard({ workout, onToggleFavorite, onDelete }: WorkoutCardProps) {
   const router = useRouter();
+  const [isDeleting, setIsDeleting] = useState(false);
 
   const handlePress = () => {
     router.push(`/workout/${workout.id}`);
@@ -20,34 +22,71 @@ export default function WorkoutCard({ workout, onToggleFavorite }: WorkoutCardPr
     onToggleFavorite(workout.id);
   };
 
+  const handleDeletePress = () => {
+    setIsDeleting(true);
+    Alert.alert(
+      "Delete Workout",
+      `Are you sure you want to delete "${workout.name}"?`,
+      [
+        {
+          text: "Cancel",
+          style: "cancel",
+          onPress: () => setIsDeleting(false)
+        },
+        {
+          text: "Delete",
+          style: "destructive",
+          onPress: () => {
+            onDelete(workout.id);
+            setIsDeleting(false);
+          }
+        }
+      ]
+    );
+  };
+
   return (
-    <TouchableOpacity 
-      style={styles.card} 
+    <TouchableOpacity
+      style={styles.card}
       onPress={handlePress}
       activeOpacity={0.9}
     >
-      <Image 
-        source={{ uri: workout.imageUrl }} 
-        style={styles.image} 
+      <Image
+        source={{ uri: workout.imageUrl }}
+        style={styles.image}
         resizeMode="cover"
       />
       <View style={styles.overlay}>
         <View style={styles.contentContainer}>
           <View style={styles.headerContainer}>
             <Text style={styles.title}>{workout.name}</Text>
-            <TouchableOpacity 
-              style={styles.favoriteButton} 
-              onPress={handleFavoritePress}
-              hitSlop={{ top: 10, right: 10, bottom: 10, left: 10 }}
-            >
-              <Heart 
-                size={22} 
-                color={workout.isFavorite ? '#FF5757' : '#fff'} 
-                fill={workout.isFavorite ? '#FF5757' : 'transparent'} 
-              />
-            </TouchableOpacity>
+            <View style={styles.actionButtons}>
+              {/* Swap the positions of the buttons */}
+              <TouchableOpacity
+                style={styles.actionButton}
+                onPress={handleFavoritePress}
+                hitSlop={{ top: 10, right: 10, bottom: 10, left: 10 }}
+              >
+                <Heart
+                  size={22}
+                  color={workout.isFavorite ? '#FF5757' : '#fff'}
+                  fill={workout.isFavorite ? '#FF5757' : 'transparent'}
+                />
+              </TouchableOpacity>
+              <TouchableOpacity
+                style={styles.actionButton}
+                onPress={handleDeletePress}
+                hitSlop={{ top: 10, right: 10, bottom: 10, left: 10 }}
+                disabled={isDeleting}
+              >
+                <Trash2
+                  size={22}
+                  color="#fff"
+                />
+              </TouchableOpacity>
+            </View>
           </View>
-          
+
           <View style={styles.detailsContainer}>
             <View style={styles.tagContainer}>
               <View style={styles.durationTag}>
@@ -57,7 +96,7 @@ export default function WorkoutCard({ workout, onToggleFavorite }: WorkoutCardPr
               <Text style={styles.tag}>{workout.category}</Text>
               <Text style={styles.tag}>{workout.difficultyLevel}</Text>
             </View>
-            
+
             <Text style={styles.description} numberOfLines={2}>
               {workout.description}
             </Text>
@@ -113,8 +152,13 @@ const styles = StyleSheet.create({
     fontFamily: 'Poppins-SemiBold',
     flex: 1,
   },
-  favoriteButton: {
+  actionButtons: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  actionButton: {
     padding: 4,
+    marginLeft: 8,
   },
   detailsContainer: {
     gap: 8,

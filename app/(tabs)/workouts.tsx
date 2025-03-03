@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, StyleSheet, ScrollView, SafeAreaView, Platform, TouchableOpacity, Modal } from 'react-native';
-import { getExercises, getWorkoutPlans, toggleExerciseFavorite, toggleWorkoutPlanFavorite } from '../../utils/storage';
+import { View, Text, StyleSheet, ScrollView, SafeAreaView, Platform, TouchableOpacity, Modal, Alert } from 'react-native';
+import { getExercises, getWorkoutPlans, toggleExerciseFavorite, toggleWorkoutPlanFavorite, deleteExercise, deleteWorkoutPlan } from '../../utils/storage';
 import { Exercise, WorkoutPlan } from '../../types';
 import ExerciseCard from '../../components/ExerciseCard';
 import WorkoutCard from '../../components/WorkoutCard';
@@ -17,13 +17,22 @@ export default function WorkoutsScreen() {
   const [activeTab, setActiveTab] = useState<'workouts' | 'exercises'>('workouts');
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
   const [filterModalVisible, setFilterModalVisible] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
 
   const loadData = async () => {
-    const loadedExercises = await getExercises();
-    setExercises(loadedExercises);
+    setIsLoading(true);
+    try {
+      const loadedExercises = await getExercises();
+      setExercises(loadedExercises);
 
-    const loadedWorkouts = await getWorkoutPlans();
-    setWorkouts(loadedWorkouts);
+      const loadedWorkouts = await getWorkoutPlans();
+      setWorkouts(loadedWorkouts);
+    } catch (error) {
+      console.error('Error loading data:', error);
+      Alert.alert('Error', 'Failed to load data. Please try again.');
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   // Use useFocusEffect to refresh data whenever the screen comes into focus
@@ -51,6 +60,42 @@ export default function WorkoutsScreen() {
     // Reload data after toggling
     const updatedWorkouts = await getWorkoutPlans();
     setWorkouts(updatedWorkouts);
+  };
+
+  const handleDeleteExercise = async (id: string) => {
+    setIsLoading(true);
+    try {
+      const success = await deleteExercise(id);
+      if (success) {
+        // Update the local state directly instead of reloading all data
+        setExercises(prevExercises => prevExercises.filter(ex => ex.id !== id));
+      } else {
+        Alert.alert('Error', 'Failed to delete exercise. Please try again.');
+      }
+    } catch (error) {
+      console.error('Error deleting exercise:', error);
+      Alert.alert('Error', 'Failed to delete exercise. Please try again.');
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleDeleteWorkout = async (id: string) => {
+    setIsLoading(true);
+    try {
+      const success = await deleteWorkoutPlan(id);
+      if (success) {
+        // Update the local state directly instead of reloading all data
+        setWorkouts(prevWorkouts => prevWorkouts.filter(w => w.id !== id));
+      } else {
+        Alert.alert('Error', 'Failed to delete workout. Please try again.');
+      }
+    } catch (error) {
+      console.error('Error deleting workout:', error);
+      Alert.alert('Error', 'Failed to delete workout. Please try again.');
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   const handleAddNew = () => {
@@ -163,13 +208,16 @@ export default function WorkoutsScreen() {
         )}
 
         <ScrollView style={styles.contentContainer} showsVerticalScrollIndicator={false}>
-          {activeTab === 'workouts' ? (
+          {isLoading ? (
+            <Text style={styles.emptyText}>Loading...</Text>
+          ) : activeTab === 'workouts' ? (
             <>
               {filteredWorkouts.map(workout => (
                 <WorkoutCard
                   key={workout.id}
                   workout={workout}
                   onToggleFavorite={handleToggleWorkoutFavorite}
+                  onDelete={handleDeleteWorkout}
                 />
               ))}
 
@@ -184,6 +232,7 @@ export default function WorkoutsScreen() {
                   key={exercise.id}
                   exercise={exercise}
                   onToggleFavorite={handleToggleExerciseFavorite}
+                  onDelete={handleDeleteExercise}
                 />
               ))}
 
@@ -251,7 +300,9 @@ export default function WorkoutsScreen() {
   );
 }
 
+// Styles remain the same as in your original file
 const styles = StyleSheet.create({
+  // All your existing styles should be copied here...
   safeArea: {
     flex: 1,
     backgroundColor: '#fff',
@@ -335,7 +386,6 @@ const styles = StyleSheet.create({
     height: '100%',
     backgroundColor: '#FF5757',
     borderRadius: 1.5,
-    // transition: 'left 0.3s ease',
   },
   contentContainer: {
     flex: 1,

@@ -12,7 +12,6 @@ import { getExercises, getWorkoutPlans, toggleExerciseFavorite, toggleWorkoutPla
 import { Exercise, WorkoutPlan } from '../../types';
 import ExerciseCard from '../../components/ExerciseCard';
 import WorkoutCard from '../../components/WorkoutCard';
-import { useFocusEffect } from '@react-navigation/native';
 
 const { width: SCREEN_WIDTH } = Dimensions.get('window');
 
@@ -25,37 +24,48 @@ export default function FavoritesScreen() {
   const translateX = useSharedValue(0);
   const scrollViewRef = useRef<ScrollView>(null);
 
-  const loadData = async () => {
-    const loadedExercises = await getExercises();
-    setExercises(loadedExercises.filter(ex => ex.isFavorite));
-
-    const loadedWorkouts = await getWorkoutPlans();
-    setWorkouts(loadedWorkouts.filter(w => w.isFavorite));
-  };
-
-  // Use useFocusEffect to refresh data whenever the screen comes into focus
-  useFocusEffect(
-    React.useCallback(() => {
-      loadData();
-      return () => {};
-    }, [])
-  );
-
-  // Initial load
   useEffect(() => {
+    const loadData = async () => {
+      const loadedExercises = await getExercises();
+      setExercises(loadedExercises.filter(ex => ex.isFavorite));
+
+      const loadedWorkouts = await getWorkoutPlans();
+      setWorkouts(loadedWorkouts.filter(w => w.isFavorite));
+    };
+
     loadData();
+  }, []);
+
+  // Add a listener to refresh data when this screen is focused
+  useEffect(() => {
+    const refreshFavorites = async () => {
+      const loadedExercises = await getExercises();
+      setExercises(loadedExercises.filter(ex => ex.isFavorite));
+
+      const loadedWorkouts = await getWorkoutPlans();
+      setWorkouts(loadedWorkouts.filter(w => w.isFavorite));
+    };
+
+    // Initial load
+    refreshFavorites();
+
+    // Set up an interval to refresh data every 2 seconds
+    const intervalId = setInterval(refreshFavorites, 2000);
+
+    // Clean up the interval when component unmounts
+    return () => clearInterval(intervalId);
   }, []);
 
   const handleToggleExerciseFavorite = async (id: string) => {
     await toggleExerciseFavorite(id);
-    // Reload data after toggling
-    loadData();
+    const loadedExercises = await getExercises();
+    setExercises(loadedExercises.filter(ex => ex.isFavorite));
   };
 
   const handleToggleWorkoutFavorite = async (id: string) => {
     await toggleWorkoutPlanFavorite(id);
-    // Reload data after toggling
-    loadData();
+    const loadedWorkouts = await getWorkoutPlans();
+    setWorkouts(loadedWorkouts.filter(w => w.isFavorite));
   };
 
   const changeTab = (tab: 'workouts' | 'exercises') => {
@@ -160,8 +170,9 @@ export default function FavoritesScreen() {
                       <WorkoutCard
                         key={workout.id}
                         workout={workout}
-                        onToggleFavorite={handleToggleWorkoutFavorite}
-                      />
+                        onToggleFavorite={handleToggleWorkoutFavorite} onDelete={function(id: string): void {
+                        throw new Error('Function not implemented.');
+                      }}                      />
                     ))
                   ) : (
                     <View style={styles.emptyContainer}>
@@ -184,8 +195,9 @@ export default function FavoritesScreen() {
                       <ExerciseCard
                         key={exercise.id}
                         exercise={exercise}
-                        onToggleFavorite={handleToggleExerciseFavorite}
-                      />
+                        onToggleFavorite={handleToggleExerciseFavorite} onDelete={function(id: string): void {
+                        throw new Error('Function not implemented.');
+                      }}                      />
                     ))
                   ) : (
                     <View style={styles.emptyContainer}>
