@@ -9,24 +9,28 @@ export default function HistoryScreen() {
 
   useEffect(() => {
     const loadHistory = async () => {
-      const workoutHistory = await getWorkoutHistory();
-      setHistory(workoutHistory);
+      try {
+        const workoutHistory = await getWorkoutHistory();
+        setHistory(workoutHistory);
+      } catch (error) {
+        console.error('Failed to load workout history:', error);
+      }
     };
-    
+
     loadHistory();
   }, []);
 
   // Group history by month
   const groupedHistory: Record<string, WorkoutHistory[]> = {};
-  
+
   history.forEach(item => {
     const date = new Date(item.date);
     const monthYear = date.toLocaleDateString('en-US', { month: 'long', year: 'numeric' });
-    
+
     if (!groupedHistory[monthYear]) {
       groupedHistory[monthYear] = [];
     }
-    
+
     groupedHistory[monthYear].push(item);
   });
 
@@ -36,15 +40,21 @@ export default function HistoryScreen() {
         <View style={styles.header}>
           <Text style={styles.title}>Workout History</Text>
         </View>
-        
-        <ScrollView style={styles.contentContainer} showsVerticalScrollIndicator={false}>
+
+        <ScrollView
+          style={styles.contentContainer}
+          showsVerticalScrollIndicator={false}
+        >
           {Object.keys(groupedHistory).length > 0 ? (
             Object.entries(groupedHistory).map(([monthYear, items]) => (
-              <View key={monthYear} style={styles.monthSection}>
+              <View key={monthYear}>
                 <Text style={styles.monthTitle}>{monthYear}</Text>
-                
+
                 {items.map(item => (
-                  <WorkoutHistoryCard key={item.id} history={item} />
+                  <WorkoutHistoryCard
+                    key={item.id}
+                    history={item}
+                  />
                 ))}
               </View>
             ))
@@ -87,9 +97,6 @@ const styles = StyleSheet.create({
     flex: 1,
     paddingHorizontal: 16,
     paddingTop: 8,
-  },
-  monthSection: {
-    marginBottom: 24,
   },
   monthTitle: {
     fontSize: 18,

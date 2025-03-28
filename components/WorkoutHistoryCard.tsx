@@ -13,10 +13,10 @@ export default function WorkoutHistoryCard({ history }: WorkoutHistoryCardProps)
 
   const formatDate = (dateString: string) => {
     const date = new Date(dateString);
-    return date.toLocaleDateString('en-US', { 
-      month: 'short', 
-      day: 'numeric', 
-      year: 'numeric' 
+    return date.toLocaleDateString('en-US', {
+      month: 'short',
+      day: 'numeric',
+      year: 'numeric'
     });
   };
 
@@ -31,32 +31,32 @@ export default function WorkoutHistoryCard({ history }: WorkoutHistoryCardProps)
   };
 
   return (
-    <TouchableOpacity 
-      style={styles.card} 
+    <TouchableOpacity
+      style={styles.card}
       onPress={handlePress}
       activeOpacity={0.9}
     >
       <View style={styles.contentContainer}>
         <Text style={styles.title}>{history.workoutName}</Text>
-        
+
         <View style={styles.detailsContainer}>
           <View style={styles.detailRow}>
             <Calendar size={16} color="#666" />
             <Text style={styles.detailText}>{formatDate(history.date)}</Text>
           </View>
-          
+
           <View style={styles.detailRow}>
             <Clock size={16} color="#666" />
             <Text style={styles.detailText}>{formatDuration(history.duration)}</Text>
           </View>
-          
+
           <View style={styles.statsContainer}>
             <View style={styles.statItem}>
               <Text style={styles.statValue}>{history.exercisesCompleted}</Text>
               <Text style={styles.statLabel}>Exercises</Text>
             </View>
-            
-            {history.caloriesBurned && (
+
+            {history.caloriesBurned !== undefined && (
               <View style={styles.statItem}>
                 <Text style={styles.statValue}>{history.caloriesBurned}</Text>
                 <Text style={styles.statLabel}>Calories</Text>
@@ -72,7 +72,6 @@ export default function WorkoutHistoryCard({ history }: WorkoutHistoryCardProps)
 const styles = StyleSheet.create({
   card: {
     borderRadius: 12,
-    overflow: 'hidden',
     marginBottom: 16,
     backgroundColor: '#fff',
     ...Platform.select({

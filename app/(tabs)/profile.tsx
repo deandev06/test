@@ -37,7 +37,14 @@ export default function ProfileScreen() {
       setTotalWorkouts(workouts.length);
     };
 
+    // Initial load
     loadUserData();
+
+    // Set up an interval to refresh data every 2 seconds
+    const intervalId = setInterval(loadUserData, 2000);
+
+    // Clean up the interval when component unmounts
+    return () => clearInterval(intervalId);
   }, []);
 
   const renderStat = (icon: React.ReactNode, title: string, value: string | number) => (
