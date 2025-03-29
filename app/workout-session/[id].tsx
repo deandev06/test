@@ -2,12 +2,14 @@ import React, { useState, useEffect } from 'react';
 import { View, Text, StyleSheet, Image, TouchableOpacity, SafeAreaView, Platform, Alert } from 'react-native';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { X } from 'lucide-react-native';
-import { getWorkoutPlanById, getExerciseById, addWorkoutToHistory, saveCurrentSession, getCurrentSession, clearCurrentSession } from '../../utils/storage';
-import { WorkoutPlan, Exercise, WorkoutSession, WorkoutHistory } from '../../types';
+import { getWorkoutPlanById, getExerciseById, addWorkoutToHistory, saveCurrentSession, getCurrentSession, clearCurrentSession } from '@/utils/storage';
+import { WorkoutPlan, Exercise, WorkoutSession, WorkoutHistory } from '@/types';
 import Timer from '../../components/Timer';
 import WorkoutControls from '../../components/WorkoutControls';
+import { useTheme } from '@/context/ThemeContext';
 
 export default function WorkoutSessionScreen() {
+  const { theme } = useTheme();
   const { id } = useLocalSearchParams<{ id: string }>();
   const router = useRouter();
   const [workout, setWorkout] = useState<WorkoutPlan | null>(null);
@@ -25,7 +27,7 @@ export default function WorkoutSessionScreen() {
       if (id) {
         // Check if there's an existing session
         const savedSession = await getCurrentSession();
-        
+
         if (savedSession && savedSession.workoutId === id) {
           // Resume the session
           setCurrentExerciseIndex(savedSession.currentExerciseIndex);
@@ -36,12 +38,12 @@ export default function WorkoutSessionScreen() {
           // Start a new session
           await clearCurrentSession();
         }
-        
+
         const workoutData = await getWorkoutPlanById(id);
         setWorkout(workoutData);
-        
+
         if (workoutData) {
-          const exercisePromises = workoutData.exercises.map(ex => 
+          const exercisePromises = workoutData.exercises.map(ex =>
             getExerciseById(ex.exerciseId)
           );
           const exerciseData = await Promise.all(exercisePromises);
@@ -50,20 +52,20 @@ export default function WorkoutSessionScreen() {
       }
       setLoading(false);
     };
-    
+
     loadWorkout();
   }, [id]);
 
   useEffect(() => {
     let interval: NodeJS.Timeout | null = null;
-    
+
     if (isPlaying && !isResting) {
       interval = setInterval(() => {
         const newElapsedTime = Date.now() - sessionStartTime;
         setElapsedTime(newElapsedTime);
       }, 1000);
     }
-    
+
     return () => {
       if (interval) clearInterval(interval);
     };
@@ -81,11 +83,11 @@ export default function WorkoutSessionScreen() {
           isPaused: !isPlaying,
           pauseStartTime: !isPlaying ? Date.now() : undefined,
         };
-        
+
         await saveCurrentSession(session);
       }
     };
-    
+
     saveSession();
   }, [workout, currentExerciseIndex, sessionStartTime, elapsedTime, isPlaying]);
 
@@ -103,9 +105,15 @@ export default function WorkoutSessionScreen() {
   };
 
   const handleSkip = () => {
-    if (workout && currentExerciseIndex < workout.exercises.length - 1) {
-      setCurrentExerciseIndex(currentExerciseIndex + 1);
-      setIsResting(false);
+    if (workout) {
+      if (currentExerciseIndex < workout.exercises.length - 1) {
+        // Move to the next exercise
+        setCurrentExerciseIndex(currentExerciseIndex + 1);
+        setIsResting(false);
+      } else {
+        // Already at the last exercise, end the workout
+        endWorkout();
+      }
     }
   };
 
@@ -138,10 +146,10 @@ export default function WorkoutSessionScreen() {
         exercisesCompleted: currentExerciseIndex + 1,
         caloriesBurned: Math.floor(elapsedTime / 1000 / 60 * 5), // Rough estimate: 5 calories per minute
       };
-      
+
       await addWorkoutToHistory(history);
       await clearCurrentSession();
-      
+
       router.replace('/history');
     }
   };
@@ -149,7 +157,7 @@ export default function WorkoutSessionScreen() {
   const handleExerciseComplete = () => {
     if (workout) {
       const currentExercise = workout.exercises[currentExerciseIndex];
-      
+
       if (currentExercise.restAfter > 0) {
         // Start rest period
         setIsResting(true);
@@ -166,7 +174,7 @@ export default function WorkoutSessionScreen() {
 
   const handleRestComplete = () => {
     setIsResting(false);
-    
+
     if (workout && currentExerciseIndex < workout.exercises.length - 1) {
       setCurrentExerciseIndex(currentExerciseIndex + 1);
     } else {
@@ -184,16 +192,16 @@ export default function WorkoutSessionScreen() {
 
   if (loading) {
     return (
-      <View style={styles.loadingContainer}>
-        <Text style={styles.loadingText}>Loading workout...</Text>
+      <View style={[styles.loadingContainer, { backgroundColor: theme.background }]}>
+        <Text style={[styles.loadingText, { color: theme.secondaryText }]}>Loading workout...</Text>
       </View>
     );
   }
 
   if (!workout || exercises.length === 0) {
     return (
-      <View style={styles.errorContainer}>
-        <Text style={styles.errorText}>Workout not found</Text>
+      <View style={[styles.errorContainer, { backgroundColor: theme.background }]}>
+        <Text style={[styles.errorText, { color: theme.secondaryText }]}>Workout not found</Text>
         <TouchableOpacity style={styles.closeButton} onPress={() => router.back()}>
           <Text style={styles.closeButtonText}>Go Back</Text>
         </TouchableOpacity>
@@ -206,8 +214,8 @@ export default function WorkoutSessionScreen() {
 
   if (!currentExercise || !currentWorkoutExercise) {
     return (
-      <View style={styles.errorContainer}>
-        <Text style={styles.errorText}>Exercise data not found</Text>
+      <View style={[styles.errorContainer, { backgroundColor: theme.background }]}>
+        <Text style={[styles.errorText, { color: theme.secondaryText }]}>Exercise data not found</Text>
         <TouchableOpacity style={styles.closeButton} onPress={() => router.back()}>
           <Text style={styles.closeButtonText}>Go Back</Text>
         </TouchableOpacity>
@@ -216,68 +224,68 @@ export default function WorkoutSessionScreen() {
   }
 
   return (
-    <SafeAreaView style={styles.safeArea}>
-      <View style={styles.container}>
-        <View style={styles.header}>
-          <TouchableOpacity 
-            style={styles.closeButton} 
+    <SafeAreaView style={[styles.safeArea, { backgroundColor: theme.background }]}>
+      <View style={[styles.container, { backgroundColor: theme.background }]}>
+        <View style={[styles.header, { borderBottomColor: theme.border }]}>
+          <TouchableOpacity
+            style={[styles.closeButton, { backgroundColor: theme.inputBackground }]}
             onPress={handleStop}
           >
-            <X size={24} color="#666" />
+            <X size={24} color={theme.secondaryText} />
           </TouchableOpacity>
-          
+
           <View style={styles.workoutInfo}>
-            <Text style={styles.workoutName}>{workout.name}</Text>
-            <Text style={styles.workoutTimer}>
+            <Text style={[styles.workoutName, { color: theme.text }]}>{workout.name}</Text>
+            <Text style={[styles.workoutTimer, { color: theme.secondaryText }]}>
               {formatTime(elapsedTime)}
             </Text>
           </View>
-          
+
           <View style={styles.placeholder} />
         </View>
-        
+
         <View style={styles.content}>
           {isResting ? (
             <View style={styles.restContainer}>
-              <Text style={styles.restTitle}>Rest Time</Text>
-              <Timer 
-                duration={restTimeLeft} 
-                isRunning={isPlaying} 
-                onComplete={handleRestComplete} 
+              <Text style={[styles.restTitle, { color: theme.text }]}>Rest Time</Text>
+              <Timer
+                duration={restTimeLeft}
+                isRunning={isPlaying}
+                onComplete={handleRestComplete}
               />
-              <Text style={styles.restText}>
-                Next: {exercises[currentExerciseIndex + 1]?.name || 'Workout Complete'}
+              <Text style={[styles.restText, { color: theme.secondaryText }]}>
+                Next: {currentExerciseIndex + 1 < exercises.length ? exercises[currentExerciseIndex + 1]?.name : 'Workout Complete'}
               </Text>
             </View>
           ) : (
             <>
               <View style={styles.exerciseProgress}>
-                <Text style={styles.exerciseCount}>
+                <Text style={[styles.exerciseCount, { color: theme.secondaryText }]}>
                   {currentExerciseIndex + 1} / {workout.exercises.length}
                 </Text>
               </View>
-              
+
               <View style={styles.exerciseContainer}>
-                <Image 
-                  source={{ uri: currentExercise.imageUrl }} 
-                  style={styles.exerciseImage} 
+                <Image
+                  source={{ uri: currentExercise.imageUrl }}
+                  style={styles.exerciseImage}
                   resizeMode="cover"
                 />
-                
-                <Text style={styles.exerciseName}>{currentExercise.name}</Text>
-                
+
+                <Text style={[styles.exerciseName, { color: theme.text }]}>{currentExercise.name}</Text>
+
                 {currentWorkoutExercise.duration ? (
-                  <Timer 
-                    duration={currentWorkoutExercise.duration} 
-                    isRunning={isPlaying} 
-                    onComplete={handleExerciseComplete} 
+                  <Timer
+                    duration={currentWorkoutExercise.duration}
+                    isRunning={isPlaying}
+                    onComplete={handleExerciseComplete}
                   />
                 ) : (
                   <View style={styles.repsContainer}>
-                    <Text style={styles.repsText}>
+                    <Text style={[styles.repsText, { color: theme.text }]}>
                       {currentWorkoutExercise.repetitions} reps × {currentWorkoutExercise.sets} sets
                     </Text>
-                    <TouchableOpacity 
+                    <TouchableOpacity
                       style={styles.doneButton}
                       onPress={handleExerciseComplete}
                     >
@@ -289,8 +297,8 @@ export default function WorkoutSessionScreen() {
             </>
           )}
         </View>
-        
-        <WorkoutControls 
+
+        <WorkoutControls
           isPlaying={isPlaying}
           onPlay={handlePlay}
           onPause={handlePause}
@@ -305,11 +313,9 @@ export default function WorkoutSessionScreen() {
 const styles = StyleSheet.create({
   safeArea: {
     flex: 1,
-    backgroundColor: '#fff',
   },
   container: {
     flex: 1,
-    backgroundColor: '#fff',
   },
   loadingContainer: {
     flex: 1,
@@ -318,7 +324,6 @@ const styles = StyleSheet.create({
   },
   loadingText: {
     fontSize: 16,
-    color: '#666',
     fontFamily: 'Poppins-Regular',
   },
   errorContainer: {
@@ -329,7 +334,6 @@ const styles = StyleSheet.create({
   },
   errorText: {
     fontSize: 18,
-    color: '#666',
     marginBottom: 16,
     fontFamily: 'Poppins-Regular',
   },
@@ -341,13 +345,11 @@ const styles = StyleSheet.create({
     paddingTop: Platform.OS === 'web' ? 24 : 16,
     paddingBottom: 16,
     borderBottomWidth: 1,
-    borderBottomColor: '#f0f0f0',
   },
   closeButton: {
     width: 40,
     height: 40,
     borderRadius: 20,
-    backgroundColor: '#f5f5f5',
     justifyContent: 'center',
     alignItems: 'center',
   },
@@ -363,12 +365,10 @@ const styles = StyleSheet.create({
   workoutName: {
     fontSize: 16,
     fontWeight: '600',
-    color: '#333',
     fontFamily: 'Poppins-SemiBold',
   },
   workoutTimer: {
     fontSize: 14,
-    color: '#666',
     fontFamily: 'Poppins-Regular',
   },
   placeholder: {
@@ -384,7 +384,6 @@ const styles = StyleSheet.create({
   },
   exerciseCount: {
     fontSize: 16,
-    color: '#666',
     fontFamily: 'Poppins-Medium',
   },
   exerciseContainer: {
@@ -401,7 +400,6 @@ const styles = StyleSheet.create({
   exerciseName: {
     fontSize: 24,
     fontWeight: '700',
-    color: '#333',
     marginBottom: 24,
     textAlign: 'center',
     fontFamily: 'Poppins-Bold',
@@ -412,7 +410,6 @@ const styles = StyleSheet.create({
   repsText: {
     fontSize: 24,
     fontWeight: '600',
-    color: '#333',
     marginBottom: 24,
     fontFamily: 'Poppins-SemiBold',
   },
@@ -436,13 +433,11 @@ const styles = StyleSheet.create({
   restTitle: {
     fontSize: 24,
     fontWeight: '700',
-    color: '#333',
     marginBottom: 24,
     fontFamily: 'Poppins-Bold',
   },
   restText: {
     fontSize: 16,
-    color: '#666',
     marginTop: 24,
     fontFamily: 'Poppins-Regular',
   },
