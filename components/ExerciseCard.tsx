@@ -3,6 +3,7 @@ import { View, Text, Image, StyleSheet, TouchableOpacity, Platform, Alert } from
 import { Heart, Trash2 } from 'lucide-react-native';
 import { useRouter } from 'expo-router';
 import { Exercise } from '../types';
+import { useTheme } from '@/context/ThemeContext';
 
 interface ExerciseCardProps {
   exercise: Exercise;
@@ -12,6 +13,7 @@ interface ExerciseCardProps {
 
 export default function ExerciseCard({ exercise, onToggleFavorite, onDelete }: ExerciseCardProps) {
   const router = useRouter();
+  const { theme } = useTheme();
   const [isDeleting, setIsDeleting] = useState(false);
 
   const handlePress = () => {
@@ -47,7 +49,7 @@ export default function ExerciseCard({ exercise, onToggleFavorite, onDelete }: E
 
   return (
     <TouchableOpacity
-      style={styles.card}
+      style={[styles.card, { backgroundColor: theme.cardBackground }]}
       onPress={handlePress}
       activeOpacity={0.9}
     >
@@ -111,7 +113,6 @@ const styles = StyleSheet.create({
     borderRadius: 12,
     overflow: 'hidden',
     marginBottom: 16,
-    backgroundColor: '#f5f5f5',
     ...Platform.select({
       web: {
         boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)',
