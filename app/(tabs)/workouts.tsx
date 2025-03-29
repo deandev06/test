@@ -12,7 +12,7 @@ import {
   StatusBar
 } from 'react-native';
 import { getExercises, getWorkoutPlans, toggleExerciseFavorite, toggleWorkoutPlanFavorite, deleteExercise, deleteWorkoutPlan } from '../../utils/storage';
-import { Exercise, WorkoutPlan } from '../../types';
+import { Exercise, WorkoutPlan } from '@/types';
 import ExerciseCard from '../../components/ExerciseCard';
 import WorkoutCard from '../../components/WorkoutCard';
 import SearchBar from '../../components/SearchBar';

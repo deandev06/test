@@ -12,8 +12,8 @@ import {
 } from 'react-native';
 import { useRouter } from 'expo-router';
 import { ArrowLeft, Plus, Minus } from 'lucide-react-native';
-import { addExercise } from '../utils/storage';
-import { Exercise, DifficultyLevel, ExerciseCategory } from '../types';
+import { addExercise } from '@/utils/storage';
+import { Exercise, DifficultyLevel, ExerciseCategory } from '@/types';
 
 export default function CreateExerciseScreen() {
   const router = useRouter();
