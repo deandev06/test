@@ -1,14 +1,24 @@
+// app/(tabs)/_layout.tsx
 import { Tabs } from 'expo-router';
 import { Home, Dumbbell, History, Heart, User } from 'lucide-react-native';
 import { StyleSheet } from 'react-native';
+import { useTheme } from '@/context/ThemeContext';
 
 export default function TabLayout() {
+  const { theme } = useTheme();
+
   return (
     <Tabs
       screenOptions={{
-        tabBarActiveTintColor: '#FF5757',
-        tabBarInactiveTintColor: '#666',
-        tabBarStyle: styles.tabBar,
+        tabBarActiveTintColor: theme.primary,
+        tabBarInactiveTintColor: theme.secondaryText,
+        tabBarStyle: [
+          styles.tabBar,
+          {
+            backgroundColor: theme.background,
+            borderTopColor: theme.border
+          }
+        ],
         tabBarLabelStyle: styles.tabBarLabel,
         headerShown: false,
       }}>
@@ -47,16 +57,13 @@ export default function TabLayout() {
           tabBarIcon: ({ color, size }) => <User size={size} color={color} />,
         }}
       />
-
     </Tabs>
   );
 }
 
 const styles = StyleSheet.create({
   tabBar: {
-    backgroundColor: '#fff',
     borderTopWidth: 1,
-    borderTopColor: '#eee',
     height: 60,
     paddingBottom: 5,
   },

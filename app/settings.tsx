@@ -1,9 +1,9 @@
-// app/settings.tsx
 import React from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, SafeAreaView, ScrollView, Switch, Platform } from 'react-native';
+import { StyleSheet, Switch, TouchableOpacity, SafeAreaView, Platform } from 'react-native';
 import { Stack, useRouter } from 'expo-router';
 import { ChevronLeft, Bell, Moon, Clock, Users, HelpCircle, LogOut } from 'lucide-react-native';
 import { useTheme } from '@/context/ThemeContext';
+import { View, Text, ScrollView } from '@/components/Themed';
 
 export default function SettingsScreen() {
   const router = useRouter();
@@ -22,7 +22,7 @@ export default function SettingsScreen() {
       disabled={!onPress}
     >
       <View style={styles.settingIcon}>{icon}</View>
-      <Text style={[styles.settingTitle, { color: theme.text }]}>{title}</Text>
+      <Text style={styles.settingTitle}>{title}</Text>
       <View style={styles.settingValue}>{value}</View>
     </TouchableOpacity>
   );
@@ -34,13 +34,13 @@ export default function SettingsScreen() {
         <TouchableOpacity onPress={() => router.back()} style={styles.backButton}>
           <ChevronLeft size={24} color={theme.text} />
         </TouchableOpacity>
-        <Text style={[styles.title, { color: theme.text }]}>Settings</Text>
+        <Text style={[styles.title, { fontFamily: 'Poppins-SemiBold' }]}>Settings</Text>
         <View style={{ width: 24 }} />
       </View>
 
-      <ScrollView style={[styles.container, { backgroundColor: theme.background }]}>
+      <ScrollView style={styles.container}>
         <View style={styles.section}>
-          <Text style={[styles.sectionTitle, { color: theme.text }]}>App Settings</Text>
+          <Text style={[styles.sectionTitle, { fontFamily: 'Poppins-SemiBold' }]}>App Settings</Text>
 
           {renderSettingItem(
             <Bell size={24} color="#FF5757" />,
@@ -73,7 +73,7 @@ export default function SettingsScreen() {
         </View>
 
         <View style={styles.section}>
-          <Text style={[styles.sectionTitle, { color: theme.text }]}>Account</Text>
+          <Text style={[styles.sectionTitle, { fontFamily: 'Poppins-SemiBold' }]}>Account</Text>
 
           {renderSettingItem(
             <Users size={24} color="#FF5757" />,
@@ -122,7 +122,6 @@ const styles = StyleSheet.create({
   title: {
     fontSize: 20,
     fontWeight: '600',
-    fontFamily: 'Poppins-SemiBold',
     textAlign: 'center',
   },
   section: {
@@ -133,7 +132,6 @@ const styles = StyleSheet.create({
     fontSize: 18,
     fontWeight: '600',
     marginBottom: 16,
-    fontFamily: 'Poppins-SemiBold',
   },
   settingItem: {
     flexDirection: 'row',
@@ -147,14 +145,12 @@ const styles = StyleSheet.create({
   settingTitle: {
     flex: 1,
     fontSize: 16,
-    fontFamily: 'Poppins-Regular',
   },
   settingValue: {
     alignItems: 'flex-end',
   },
   settingSubtitle: {
     fontSize: 14,
-    fontFamily: 'Poppins-Regular',
   },
   logoutButton: {
     flexDirection: 'row',
@@ -176,6 +172,5 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     fontSize: 14,
     marginVertical: 24,
-    fontFamily: 'Poppins-Regular',
   },
 });
