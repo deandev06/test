@@ -119,7 +119,7 @@ export default function ProfileScreen() {
             favoriteExercises.map(exercise => (
               <TouchableOpacity
                 key={exercise.id}
-                style={[styles.favoriteItem, { backgroundColor: '#f9f9f9' }]}
+                style={[styles.favoriteItem, { backgroundColor: theme.inputBackground }]}
                 onPress={() => router.push(`/exercise/${exercise.id}`)}
               >
                 <Text style={[styles.favoriteItemName, { color: theme.text }]}>{exercise.name}</Text>
@@ -140,7 +140,7 @@ export default function ProfileScreen() {
             favoriteWorkouts.map(workout => (
               <TouchableOpacity
                 key={workout.id}
-                style={[styles.favoriteItem, { backgroundColor: '#f9f9f9' }]}
+                style={[styles.favoriteItem, { backgroundColor: theme.inputBackground }]}
                 onPress={() => router.push(`/workout/${workout.id}`)}
               >
                 <Text style={[styles.favoriteItemName, { color: theme.text }]}>{workout.name}</Text>

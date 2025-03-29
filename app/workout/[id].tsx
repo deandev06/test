@@ -4,8 +4,10 @@ import { useLocalSearchParams, useRouter } from 'expo-router';
 import { Heart, ArrowLeft, Clock, BarChart3, Play, Dumbbell } from 'lucide-react-native';
 import { getWorkoutPlanById, getExerciseById, toggleWorkoutPlanFavorite } from '../../utils/storage';
 import { WorkoutPlan, Exercise } from '../../types';
+import { useTheme } from '@/context/ThemeContext';
 
 export default function WorkoutDetailScreen() {
+  const { theme } = useTheme();
   const { id } = useLocalSearchParams<{ id: string }>();
   const router = useRouter();
   const [workout, setWorkout] = useState<WorkoutPlan | null>(null);
@@ -17,9 +19,9 @@ export default function WorkoutDetailScreen() {
       if (id) {
         const workoutData = await getWorkoutPlanById(id);
         setWorkout(workoutData);
-        
+
         if (workoutData) {
-          const exercisePromises = workoutData.exercises.map(ex => 
+          const exercisePromises = workoutData.exercises.map(ex =>
             getExerciseById(ex.exerciseId)
           );
           const exerciseData = await Promise.all(exercisePromises);
@@ -28,7 +30,7 @@ export default function WorkoutDetailScreen() {
       }
       setLoading(false);
     };
-    
+
     loadWorkout();
   }, [id]);
 
@@ -48,16 +50,16 @@ export default function WorkoutDetailScreen() {
 
   if (loading) {
     return (
-      <View style={styles.loadingContainer}>
-        <Text style={styles.loadingText}>Loading...</Text>
+      <View style={[styles.loadingContainer, { backgroundColor: theme.background }]}>
+        <Text style={[styles.loadingText, { color: theme.secondaryText }]}>Loading...</Text>
       </View>
     );
   }
 
   if (!workout) {
     return (
-      <View style={styles.errorContainer}>
-        <Text style={styles.errorText}>Workout not found</Text>
+      <View style={[styles.errorContainer, { backgroundColor: theme.background }]}>
+        <Text style={[styles.errorText, { color: theme.secondaryText }]}>Workout not found</Text>
         <TouchableOpacity style={styles.backButton} onPress={() => router.back()}>
           <Text style={styles.backButtonText}>Go Back</Text>
         </TouchableOpacity>
@@ -66,90 +68,90 @@ export default function WorkoutDetailScreen() {
   }
 
   return (
-    <SafeAreaView style={styles.safeArea}>
-      <ScrollView style={styles.container} showsVerticalScrollIndicator={false}>
+    <SafeAreaView style={[styles.safeArea, { backgroundColor: theme.background }]}>
+      <ScrollView style={[styles.container, { backgroundColor: theme.background }]} showsVerticalScrollIndicator={false}>
         <View style={styles.imageContainer}>
-          <Image 
-            source={{ uri: workout.imageUrl }} 
-            style={styles.image} 
+          <Image
+            source={{ uri: workout.imageUrl }}
+            style={styles.image}
             resizeMode="cover"
           />
           <View style={styles.overlay}>
-            <TouchableOpacity 
-              style={styles.backButton} 
+            <TouchableOpacity
+              style={styles.backButton}
               onPress={() => router.back()}
             >
               <ArrowLeft size={24} color="#fff" />
             </TouchableOpacity>
-            
-            <TouchableOpacity 
-              style={styles.favoriteButton} 
+
+            <TouchableOpacity
+              style={styles.favoriteButton}
               onPress={handleToggleFavorite}
             >
-              <Heart 
-                size={24} 
-                color="#fff" 
-                fill={workout.isFavorite ? '#fff' : 'transparent'} 
+              <Heart
+                size={24}
+                color="#fff"
+                fill={workout.isFavorite ? '#fff' : 'transparent'}
               />
             </TouchableOpacity>
           </View>
         </View>
-        
+
         <View style={styles.contentContainer}>
-          <Text style={styles.title}>{workout.name}</Text>
-          
+          <Text style={[styles.title, { color: theme.text }]}>{workout.name}</Text>
+
           <View style={styles.tagsContainer}>
-            <View style={styles.tag}>
-              <Clock size={16} color="#666" />
-              <Text style={styles.tagText}>{workout.duration} min</Text>
+            <View style={[styles.tag, { backgroundColor: theme.inputBackground }]}>
+              <Clock size={16} color={theme.secondaryText} />
+              <Text style={[styles.tagText, { color: theme.secondaryText }]}>{workout.duration} min</Text>
             </View>
-            
-            <View style={styles.tag}>
-              <BarChart3 size={16} color="#666" />
-              <Text style={styles.tagText}>{workout.difficultyLevel}</Text>
+
+            <View style={[styles.tag, { backgroundColor: theme.inputBackground }]}>
+              <BarChart3 size={16} color={theme.secondaryText} />
+              <Text style={[styles.tagText, { color: theme.secondaryText }]}>{workout.difficultyLevel}</Text>
             </View>
-            
-            <View style={styles.tag}>
-              <Dumbbell size={16} color="#666" />
-              <Text style={styles.tagText}>{workout.category}</Text>
+
+            <View style={[styles.tag, { backgroundColor: theme.inputBackground }]}>
+              <Dumbbell size={16} color={theme.secondaryText} />
+              <Text style={[styles.tagText, { color: theme.secondaryText }]}>{workout.category}</Text>
             </View>
           </View>
-          
+
           <View style={styles.section}>
-            <Text style={styles.sectionTitle}>Description</Text>
-            <Text style={styles.description}>{workout.description}</Text>
+            <Text style={[styles.sectionTitle, { color: theme.text }]}>Description</Text>
+            <Text style={[styles.description, { color: theme.secondaryText }]}>{workout.description}</Text>
           </View>
-          
+
           <View style={styles.section}>
-            <Text style={styles.sectionTitle}>Exercises</Text>
+            <Text style={[styles.sectionTitle, { color: theme.text }]}>Exercises</Text>
             {workout.exercises.map((workoutExercise, index) => {
               const exercise = exercises[index];
               if (!exercise) return null;
-              
+
               return (
-                <TouchableOpacity 
+                <TouchableOpacity
                   key={index}
-                  style={styles.exerciseItem}
+                  style={[styles.exerciseItem, { backgroundColor: theme.inputBackground }]}
                   onPress={() => router.push(`/exercise/${exercise.id}`)}
                 >
-                  <Image 
-                    source={{ uri: exercise.imageUrl }} 
-                    style={styles.exerciseImage} 
+                  <Image
+                    source={{ uri: exercise.imageUrl }}
+                    style={styles.exerciseImage}
                     resizeMode="cover"
                   />
                   <View style={styles.exerciseContent}>
-                    <Text style={styles.exerciseName}>{exercise.name}</Text>
+                    <Text style={[styles.exerciseName, { color: theme.text }]}>{exercise.name}</Text>
                     <View style={styles.exerciseDetails}>
                       {workoutExercise.duration ? (
-                        <Text style={styles.exerciseDetail}>
+                        <Text style={[styles.exerciseDetail, { color: theme.secondaryText }]}>
                           {workoutExercise.duration} sec
                         </Text>
                       ) : (
-                        <Text style={styles.exerciseDetail}>
+                        <Text style={[styles.exerciseDetail, { color: theme.secondaryText }]}>
                           {workoutExercise.repetitions} reps × {workoutExercise.sets} sets
                         </Text>
                       )}
-                      <Text style={styles.exerciseDetail}>
+                      <Text style={[styles.exerciseDetail, { color: theme.secondaryText }]}>
                         Rest: {workoutExercise.restAfter} sec
                       </Text>
                     </View>
@@ -160,9 +162,9 @@ export default function WorkoutDetailScreen() {
           </View>
         </View>
       </ScrollView>
-      
-      <View style={styles.startButtonContainer}>
-        <TouchableOpacity 
+
+      <View style={[styles.startButtonContainer, { backgroundColor: theme.background, borderTopColor: theme.border }]}>
+        <TouchableOpacity
           style={styles.startButton}
           onPress={handleStartWorkout}
         >
@@ -177,11 +179,9 @@ export default function WorkoutDetailScreen() {
 const styles = StyleSheet.create({
   safeArea: {
     flex: 1,
-    backgroundColor: '#fff',
   },
   container: {
     flex: 1,
-    backgroundColor: '#fff',
   },
   loadingContainer: {
     flex: 1,
@@ -190,7 +190,6 @@ const styles = StyleSheet.create({
   },
   loadingText: {
     fontSize: 16,
-    color: '#666',
     fontFamily: 'Poppins-Regular',
   },
   errorContainer: {
@@ -201,7 +200,6 @@ const styles = StyleSheet.create({
   },
   errorText: {
     fontSize: 18,
-    color: '#666',
     marginBottom: 16,
     fontFamily: 'Poppins-Regular',
   },
@@ -249,7 +247,6 @@ const styles = StyleSheet.create({
   title: {
     fontSize: 24,
     fontWeight: '700',
-    color: '#333',
     marginBottom: 16,
     fontFamily: 'Poppins-Bold',
   },
@@ -262,7 +259,6 @@ const styles = StyleSheet.create({
   tag: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#f5f5f5',
     paddingHorizontal: 12,
     paddingVertical: 6,
     borderRadius: 16,
@@ -270,7 +266,6 @@ const styles = StyleSheet.create({
   },
   tagText: {
     fontSize: 14,
-    color: '#666',
     fontFamily: 'Poppins-Medium',
     textTransform: 'capitalize',
   },
@@ -280,20 +275,17 @@ const styles = StyleSheet.create({
   sectionTitle: {
     fontSize: 18,
     fontWeight: '600',
-    color: '#333',
     marginBottom: 12,
     fontFamily: 'Poppins-SemiBold',
   },
   description: {
     fontSize: 16,
-    color: '#666',
     lineHeight: 24,
     fontFamily: 'Poppins-Regular',
   },
   exerciseItem: {
     flexDirection: 'row',
     marginBottom: 16,
-    backgroundColor: '#f9f9f9',
     borderRadius: 12,
     overflow: 'hidden',
     ...Platform.select({
@@ -321,7 +313,6 @@ const styles = StyleSheet.create({
   exerciseName: {
     fontSize: 16,
     fontWeight: '600',
-    color: '#333',
     marginBottom: 4,
     fontFamily: 'Poppins-SemiBold',
   },
@@ -332,7 +323,6 @@ const styles = StyleSheet.create({
   },
   exerciseDetail: {
     fontSize: 14,
-    color: '#666',
     fontFamily: 'Poppins-Regular',
   },
   startButtonContainer: {
@@ -341,9 +331,7 @@ const styles = StyleSheet.create({
     left: 0,
     right: 0,
     padding: 16,
-    backgroundColor: '#fff',
     borderTopWidth: 1,
-    borderTopColor: '#f0f0f0',
   },
   startButton: {
     backgroundColor: '#FF5757',
