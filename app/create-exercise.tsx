@@ -1,12 +1,12 @@
 import React, { useState } from 'react';
-import { 
-  View, 
-  Text, 
-  StyleSheet, 
-  TextInput, 
-  TouchableOpacity, 
-  ScrollView, 
-  SafeAreaView, 
+import {
+  View,
+  Text,
+  StyleSheet,
+  TextInput,
+  TouchableOpacity,
+  ScrollView,
+  SafeAreaView,
   Platform,
   Alert
 } from 'react-native';
@@ -14,8 +14,10 @@ import { useRouter } from 'expo-router';
 import { ArrowLeft, Plus, Minus } from 'lucide-react-native';
 import { addExercise } from '@/utils/storage';
 import { Exercise, DifficultyLevel, ExerciseCategory } from '@/types';
+import { useTheme } from '@/context/ThemeContext';
 
 export default function CreateExerciseScreen() {
+  const { theme } = useTheme();
   const router = useRouter();
   const [name, setName] = useState('');
   const [description, setDescription] = useState('');
@@ -166,15 +168,15 @@ export default function CreateExerciseScreen() {
   return (
     <SafeAreaView style={styles.safeArea}>
       <View style={styles.header}>
-        <TouchableOpacity 
-          style={styles.backButton} 
+        <TouchableOpacity
+          style={styles.backButton}
           onPress={() => router.back()}
         >
           <ArrowLeft size={24} color="#333" />
         </TouchableOpacity>
         <Text style={styles.headerTitle}>Create Exercise</Text>
-        <TouchableOpacity 
-          style={styles.saveButton} 
+        <TouchableOpacity
+          style={styles.saveButton}
           onPress={handleSave}
         >
           <Text style={styles.saveButtonText}>Save</Text>
@@ -226,7 +228,7 @@ export default function CreateExerciseScreen() {
                 ]}
                 onPress={() => setCategory(cat)}
               >
-                <Text 
+                <Text
                   style={[
                     styles.optionText,
                     category === cat && styles.selectedOptionText
@@ -248,14 +250,14 @@ export default function CreateExerciseScreen() {
               onChangeText={setNewEquipment}
               placeholder="Add equipment (optional)"
             />
-            <TouchableOpacity 
+            <TouchableOpacity
               style={styles.addButton}
               onPress={handleAddEquipment}
             >
               <Plus size={20} color="#fff" />
             </TouchableOpacity>
           </View>
-          
+
           {equipment.length > 0 && (
             <View style={styles.equipmentList}>
               {equipment.map((item, index) => (
@@ -285,7 +287,7 @@ export default function CreateExerciseScreen() {
                 ]}
                 onPress={() => setDifficultyLevel(level)}
               >
-                <Text 
+                <Text
                   style={[
                     styles.optionText,
                     difficultyLevel === level && styles.selectedOptionText
@@ -308,7 +310,7 @@ export default function CreateExerciseScreen() {
               ]}
               onPress={() => setExerciseType('duration')}
             >
-              <Text 
+              <Text
                 style={[
                   styles.optionText,
                   exerciseType === 'duration' && styles.selectedOptionText
@@ -324,7 +326,7 @@ export default function CreateExerciseScreen() {
               ]}
               onPress={() => setExerciseType('repetition')}
             >
-              <Text 
+              <Text
                 style={[
                   styles.optionText,
                   exerciseType === 'repetition' && styles.selectedOptionText
@@ -375,14 +377,14 @@ export default function CreateExerciseScreen() {
         <View style={styles.formGroup}>
           <View style={styles.sectionHeader}>
             <Text style={styles.label}>Instructions</Text>
-            <TouchableOpacity 
+            <TouchableOpacity
               style={styles.addButton}
               onPress={handleAddInstruction}
             >
               <Plus size={20} color="#fff" />
             </TouchableOpacity>
           </View>
-          
+
           {instructions.map((instruction, index) => (
             <View key={index} style={styles.listItemContainer}>
               <TextInput
@@ -406,14 +408,14 @@ export default function CreateExerciseScreen() {
         <View style={styles.formGroup}>
           <View style={styles.sectionHeader}>
             <Text style={styles.label}>Tips (Optional)</Text>
-            <TouchableOpacity 
+            <TouchableOpacity
               style={styles.addButton}
               onPress={handleAddTip}
             >
               <Plus size={20} color="#fff" />
             </TouchableOpacity>
           </View>
-          
+
           {tips.map((tip, index) => (
             <View key={index} style={styles.listItemContainer}>
               <TextInput
@@ -436,14 +438,14 @@ export default function CreateExerciseScreen() {
         <View style={[styles.formGroup, styles.lastFormGroup]}>
           <View style={styles.sectionHeader}>
             <Text style={styles.label}>Common Mistakes (Optional)</Text>
-            <TouchableOpacity 
+            <TouchableOpacity
               style={styles.addButton}
               onPress={handleAddMistake}
             >
               <Plus size={20} color="#fff" />
             </TouchableOpacity>
           </View>
-          
+
           {commonMistakes.map((mistake, index) => (
             <View key={index} style={styles.listItemContainer}>
               <TextInput

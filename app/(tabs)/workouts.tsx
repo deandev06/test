@@ -11,7 +11,7 @@ import {
   Alert,
   StatusBar
 } from 'react-native';
-import { getExercises, getWorkoutPlans, toggleExerciseFavorite, toggleWorkoutPlanFavorite, deleteExercise, deleteWorkoutPlan } from '../../utils/storage';
+import { getExercises, getWorkoutPlans, toggleExerciseFavorite, toggleWorkoutPlanFavorite, deleteExercise, deleteWorkoutPlan } from '@/utils/storage';
 import { Exercise, WorkoutPlan } from '@/types';
 import ExerciseCard from '../../components/ExerciseCard';
 import WorkoutCard from '../../components/WorkoutCard';
@@ -165,7 +165,7 @@ export default function WorkoutsScreen() {
           </View>
 
           <TouchableOpacity
-            style={styles.filterButton}
+            style={[styles.filterButton, { backgroundColor: theme.inputBackground, borderColor: theme.border }]}
             onPress={() => setFilterModalVisible(true)}
           >
             <Filter size={20} color={selectedCategory ? "#FF5757" : theme.secondaryText} />
@@ -212,7 +212,7 @@ export default function WorkoutsScreen() {
         </View>
 
         {selectedCategory && (
-          <View style={styles.activeFilterContainer}>
+          <View style={[styles.activeFilterContainer, { backgroundColor: theme.primary === '#FF5757' ? '#ff575733' : '#fff0f0' }]}>
             <Text style={[styles.activeFilterText, { color: theme.text }]}>
               Filtered by: {selectedCategory}
             </Text>
@@ -282,7 +282,10 @@ export default function WorkoutsScreen() {
                 style={[
                   styles.categoryItem,
                   { borderBottomColor: theme.border },
-                  selectedCategory === null && styles.selectedCategoryItem
+                  selectedCategory === null && [
+                    styles.selectedCategoryItem,
+                    { backgroundColor: theme.primary === '#FF5757' ? '#ff575733' : '#fff0f0' }
+                  ]
                 ]}
                 onPress={() => handleSelectCategory(null)}
               >
@@ -301,7 +304,10 @@ export default function WorkoutsScreen() {
                   style={[
                     styles.categoryItem,
                     { borderBottomColor: theme.border },
-                    selectedCategory === category && styles.selectedCategoryItem
+                    selectedCategory === category && [
+                      styles.selectedCategoryItem,
+                      { backgroundColor: theme.primary === '#FF5757' ? '#ff575733' : '#fff0f0' }
+                    ]
                   ]}
                   onPress={() => handleSelectCategory(category)}
                 >
@@ -367,11 +373,9 @@ const styles = StyleSheet.create({
     width: 42,
     height: 42,
     borderRadius: 21,
-    backgroundColor: '#f5f5f5',
     justifyContent: 'center',
     alignItems: 'center',
     borderWidth: 1,
-    borderColor: '#eee',
   },
   tabContainer: {
     paddingHorizontal: 16,
@@ -439,7 +443,7 @@ const styles = StyleSheet.create({
     borderBottomWidth: 1,
   },
   selectedCategoryItem: {
-    backgroundColor: '#fff0f0',
+    // backgroundColor now set dynamically based on theme
   },
   categoryText: {
     fontSize: 16,
@@ -456,7 +460,6 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     paddingHorizontal: 16,
     paddingVertical: 8,
-    backgroundColor: '#fff0f0',
     marginBottom: 8,
   },
   activeFilterText: {
