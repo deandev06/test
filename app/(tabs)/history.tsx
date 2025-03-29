@@ -3,6 +3,7 @@ import { View, Text, StyleSheet, ScrollView, SafeAreaView, Platform } from 'reac
 import { getWorkoutHistory } from '../../utils/storage';
 import { WorkoutHistory } from '../../types';
 import WorkoutHistoryCard from '../../components/WorkoutHistoryCard';
+import Header from '@/components/Header';
 
 export default function HistoryScreen() {
   const [history, setHistory] = useState<WorkoutHistory[]>([]);
@@ -37,9 +38,7 @@ export default function HistoryScreen() {
   return (
     <SafeAreaView style={styles.safeArea}>
       <View style={styles.container}>
-        <View style={styles.header}>
-          <Text style={styles.title}>Workout History</Text>
-        </View>
+        <Header title="Workout History" />
 
         <ScrollView
           style={styles.contentContainer}

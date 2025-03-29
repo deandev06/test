@@ -2,14 +2,15 @@ import React, { useState, useEffect } from 'react';
 import { View, Text, StyleSheet, ScrollView, TouchableOpacity, SafeAreaView, Platform } from 'react-native';
 import { useRouter } from 'expo-router';
 import { Play } from 'lucide-react-native';
-import { getExercises, getWorkoutPlans, toggleExerciseFavorite, toggleWorkoutPlanFavorite } from '../../utils/storage';
-import { initializeAppData } from '../../utils/dataInitializer';
-import { Exercise, WorkoutPlan } from '../../types';
+import { getExercises, getWorkoutPlans, toggleExerciseFavorite, toggleWorkoutPlanFavorite } from '@/utils/storage';
+import { initializeAppData } from '@/utils/dataInitializer';
+import { Exercise, WorkoutPlan } from '@/types';
 import ExerciseCard from '../../components/ExerciseCard';
 import WorkoutCard from '../../components/WorkoutCard';
 import SearchBar from '../../components/SearchBar';
 import CategoryFilter from '../../components/CategoryFilter';
 import { useFocusEffect } from '@react-navigation/native';
+import Header from '@/components/Header';
 
 export default function HomeScreen() {
   const router = useRouter();
@@ -98,10 +99,7 @@ export default function HomeScreen() {
   return (
     <SafeAreaView style={styles.safeArea}>
       <ScrollView style={styles.container} showsVerticalScrollIndicator={false}>
-        <View style={styles.header}>
-          <Text style={styles.greeting}>Hello,</Text>
-          <Text style={styles.title}>Ready to workout?</Text>
-        </View>
+        <Header title="Ready to workout?" />
 
         <SearchBar
           value={searchQuery}

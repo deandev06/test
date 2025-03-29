@@ -12,6 +12,7 @@ import { getExercises, getWorkoutPlans, toggleExerciseFavorite, toggleWorkoutPla
 import { Exercise, WorkoutPlan } from '../../types';
 import ExerciseCard from '../../components/ExerciseCard';
 import WorkoutCard from '../../components/WorkoutCard';
+import Header from '@/components/Header';
 
 const { width: SCREEN_WIDTH } = Dimensions.get('window');
 
@@ -122,10 +123,7 @@ export default function FavoritesScreen() {
     <GestureHandlerRootView style={{ flex: 1 }}>
       <SafeAreaView style={styles.safeArea}>
         <View style={styles.container}>
-          <View style={styles.header}>
-            <Text style={styles.title}>Favorites</Text>
-          </View>
-
+          <Header title="Favorites" />
           <View style={styles.tabContainer}>
             <View style={styles.tabButtons}>
               <Text

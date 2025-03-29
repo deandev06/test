@@ -1,20 +1,21 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, StyleSheet, ScrollView, TouchableOpacity, SafeAreaView, Image, Platform } from 'react-native';
+import { View, Text, StyleSheet, ScrollView, TouchableOpacity, SafeAreaView, Platform, StatusBar } from 'react-native';
 import { useRouter } from 'expo-router';
 import { getExercises, getWorkoutPlans } from '../../utils/storage';
 import { Exercise, WorkoutPlan } from '../../types';
 import { Settings, Heart, Award, Calendar, User } from 'lucide-react-native';
+import UserNameSetup, { getUserName } from '@/components/UserNameSetup';
 
 export default function ProfileScreen() {
   const router = useRouter();
   const [favoriteExercises, setFavoriteExercises] = useState<Exercise[]>([]);
   const [favoriteWorkouts, setFavoriteWorkouts] = useState<WorkoutPlan[]>([]);
   const [totalWorkouts, setTotalWorkouts] = useState(0);
+  const [userName, setUserName] = useState('');
 
   // Mock user data - in a real app, this would come from user authentication or local storage
   const user = {
-    name: 'John Doe',
-    email: 'john.doe@example.com',
+    email: 'user@example.com',
     joinDate: 'January 2023',
     level: 'Intermediate',
     streak: 8,
@@ -23,6 +24,10 @@ export default function ProfileScreen() {
 
   useEffect(() => {
     const loadUserData = async () => {
+      // Get user name
+      const name = await getUserName();
+      setUserName(name);
+
       // Get favorite exercises
       const exercises = await getExercises();
       const favExercises = exercises.filter(ex => ex.isFavorite);
@@ -47,6 +52,10 @@ export default function ProfileScreen() {
     return () => clearInterval(intervalId);
   }, []);
 
+  const handleNameSave = (name: string) => {
+    setUserName(name);
+  };
+
   const renderStat = (icon: React.ReactNode, title: string, value: string | number) => (
     <View style={styles.statItem}>
       {icon}
@@ -59,7 +68,7 @@ export default function ProfileScreen() {
     <SafeAreaView style={styles.safeArea}>
       <ScrollView style={styles.container} showsVerticalScrollIndicator={false}>
         {/* Header with settings button */}
-        <View style={styles.header}>
+        <View style={styles.headerContainer}>
           <Text style={styles.title}>Profile</Text>
           <TouchableOpacity style={styles.settingsButton} onPress={() => router.push('/settings')}>
             <Settings size={24} color="#555" />
@@ -71,9 +80,10 @@ export default function ProfileScreen() {
           <View style={styles.profileImageContainer}>
             <User size={60} color="#FF5757" style={styles.profileImage} />
           </View>
-          <Text style={styles.userName}>{user.name}</Text>
+          <Text style={styles.userName}>{userName}</Text>
           <Text style={styles.userEmail}>{user.email}</Text>
           <Text style={styles.userLevel}>{user.level} • Member since {user.joinDate}</Text>
+          <UserNameSetup onSave={handleNameSave} />
         </View>
 
         {/* Stats section */}
@@ -162,12 +172,14 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: '#fff',
   },
-  header: {
+  headerContainer: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
     paddingHorizontal: 16,
-    paddingTop: Platform.OS === 'web' ? 24 : 12,
+    paddingTop: Platform.OS === 'ios' ?
+      (StatusBar.currentHeight || 0) + 30 :
+      (StatusBar.currentHeight || 0) + 20,
     paddingBottom: 8,
     width: '100%',
   },
@@ -213,6 +225,7 @@ const styles = StyleSheet.create({
     fontSize: 14,
     color: '#888',
     fontFamily: 'Poppins-Regular',
+    marginBottom: 8,
   },
   statsContainer: {
     flexDirection: 'row',
