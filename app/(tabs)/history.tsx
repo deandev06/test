@@ -1,11 +1,14 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, StyleSheet, ScrollView, SafeAreaView, Platform } from 'react-native';
-import { getWorkoutHistory } from '../../utils/storage';
-import { WorkoutHistory } from '../../types';
+import { StyleSheet, SafeAreaView, Platform } from 'react-native';
+import { getWorkoutHistory } from '@/utils/storage';
+import { WorkoutHistory } from '@/types';
 import WorkoutHistoryCard from '../../components/WorkoutHistoryCard';
 import Header from '@/components/Header';
+import { useTheme } from '@/context/ThemeContext';
+import { View, Text, ScrollView } from '@/components/Themed';
 
 export default function HistoryScreen() {
+  const { theme } = useTheme();  // Add theme support
   const [history, setHistory] = useState<WorkoutHistory[]>([]);
 
   useEffect(() => {
@@ -36,7 +39,7 @@ export default function HistoryScreen() {
   });
 
   return (
-    <SafeAreaView style={styles.safeArea}>
+    <SafeAreaView style={[styles.safeArea, { backgroundColor: theme.background }]}>
       <View style={styles.container}>
         <Header title="Workout History" />
 
@@ -47,7 +50,7 @@ export default function HistoryScreen() {
           {Object.keys(groupedHistory).length > 0 ? (
             Object.entries(groupedHistory).map(([monthYear, items]) => (
               <View key={monthYear}>
-                <Text style={styles.monthTitle}>{monthYear}</Text>
+                <Text style={[styles.monthTitle, { color: theme.secondaryText }]}>{monthYear}</Text>
 
                 {items.map(item => (
                   <WorkoutHistoryCard
@@ -59,8 +62,8 @@ export default function HistoryScreen() {
             ))
           ) : (
             <View style={styles.emptyContainer}>
-              <Text style={styles.emptyTitle}>No Workout History</Text>
-              <Text style={styles.emptyText}>
+              <Text style={[styles.emptyTitle, { color: theme.text }]}>No Workout History</Text>
+              <Text style={[styles.emptyText, { color: theme.secondaryText }]}>
                 Complete your first workout to see it here!
               </Text>
             </View>
@@ -74,11 +77,9 @@ export default function HistoryScreen() {
 const styles = StyleSheet.create({
   safeArea: {
     flex: 1,
-    backgroundColor: '#fff',
   },
   container: {
     flex: 1,
-    backgroundColor: '#fff',
   },
   header: {
     paddingHorizontal: 16,
@@ -89,7 +90,6 @@ const styles = StyleSheet.create({
   title: {
     fontSize: 28,
     fontWeight: '700',
-    color: '#333',
     fontFamily: 'Poppins-Bold',
   },
   contentContainer: {
@@ -100,7 +100,6 @@ const styles = StyleSheet.create({
   monthTitle: {
     fontSize: 18,
     fontWeight: '600',
-    color: '#666',
     marginBottom: 12,
     fontFamily: 'Poppins-SemiBold',
   },
@@ -113,13 +112,11 @@ const styles = StyleSheet.create({
   emptyTitle: {
     fontSize: 20,
     fontWeight: '600',
-    color: '#333',
     marginBottom: 8,
     fontFamily: 'Poppins-SemiBold',
   },
   emptyText: {
     fontSize: 16,
-    color: '#999',
     textAlign: 'center',
     fontFamily: 'Poppins-Regular',
   },

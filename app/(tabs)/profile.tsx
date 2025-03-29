@@ -1,13 +1,15 @@
 import React, { useState, useEffect } from 'react';
 import { View, Text, StyleSheet, ScrollView, TouchableOpacity, SafeAreaView, Platform, StatusBar } from 'react-native';
 import { useRouter } from 'expo-router';
-import { getExercises, getWorkoutPlans } from '../../utils/storage';
-import { Exercise, WorkoutPlan } from '../../types';
+import { getExercises, getWorkoutPlans } from '@/utils/storage';
+import { Exercise, WorkoutPlan } from '@/types';
 import { Settings, Heart, Award, Calendar, User } from 'lucide-react-native';
 import UserNameSetup, { getUserName } from '@/components/UserNameSetup';
+import { useTheme } from '@/context/ThemeContext';
 
 export default function ProfileScreen() {
   const router = useRouter();
+  const { theme } = useTheme();
   const [favoriteExercises, setFavoriteExercises] = useState<Exercise[]>([]);
   const [favoriteWorkouts, setFavoriteWorkouts] = useState<WorkoutPlan[]>([]);
   const [totalWorkouts, setTotalWorkouts] = useState(0);
@@ -59,35 +61,40 @@ export default function ProfileScreen() {
   const renderStat = (icon: React.ReactNode, title: string, value: string | number) => (
     <View style={styles.statItem}>
       {icon}
-      <Text style={styles.statValue}>{value}</Text>
-      <Text style={styles.statTitle}>{title}</Text>
+      <Text style={[styles.statValue, { color: theme.text }]}>{value}</Text>
+      <Text style={[styles.statTitle, { color: theme.secondaryText }]}>{title}</Text>
     </View>
   );
 
   return (
-    <SafeAreaView style={styles.safeArea}>
-      <ScrollView style={styles.container} showsVerticalScrollIndicator={false}>
+    <SafeAreaView style={[styles.safeArea, { backgroundColor: theme.background }]}>
+      <ScrollView
+        style={[styles.container, { backgroundColor: theme.background }]}
+        showsVerticalScrollIndicator={false}
+      >
         {/* Header with settings button */}
         <View style={styles.headerContainer}>
-          <Text style={styles.title}>Profile</Text>
+          <Text style={[styles.title, { color: theme.text }]}>Profile</Text>
           <TouchableOpacity style={styles.settingsButton} onPress={() => router.push('/settings')}>
-            <Settings size={24} color="#555" />
+            <Settings size={24} color={theme.secondaryText} />
           </TouchableOpacity>
         </View>
 
         {/* User profile section */}
         <View style={styles.profileSection}>
-          <View style={styles.profileImageContainer}>
+          <View style={[styles.profileImageContainer, { backgroundColor: '#f1f1f1' }]}>
             <User size={60} color="#FF5757" style={styles.profileImage} />
           </View>
-          <Text style={styles.userName}>{userName}</Text>
-          <Text style={styles.userEmail}>{user.email}</Text>
-          <Text style={styles.userLevel}>{user.level} • Member since {user.joinDate}</Text>
+          <Text style={[styles.userName, { color: theme.text }]}>{userName}</Text>
+          <Text style={[styles.userEmail, { color: theme.secondaryText }]}>{user.email}</Text>
+          <Text style={[styles.userLevel, { color: theme.secondaryText }]}>
+            {user.level} • Member since {user.joinDate}
+          </Text>
           <UserNameSetup onSave={handleNameSave} />
         </View>
 
         {/* Stats section */}
-        <View style={styles.statsContainer}>
+        <View style={[styles.statsContainer, { borderColor: '#eee' }]}>
           {renderStat(
             <Award size={28} color="#FF5757" style={styles.statIcon} />,
             'Streak',
@@ -107,39 +114,43 @@ export default function ProfileScreen() {
 
         {/* Favorite exercises section */}
         <View style={styles.section}>
-          <Text style={styles.sectionTitle}>Favorite Exercises</Text>
+          <Text style={[styles.sectionTitle, { color: theme.text }]}>Favorite Exercises</Text>
           {favoriteExercises.length > 0 ? (
             favoriteExercises.map(exercise => (
               <TouchableOpacity
                 key={exercise.id}
-                style={styles.favoriteItem}
+                style={[styles.favoriteItem, { backgroundColor: '#f9f9f9' }]}
                 onPress={() => router.push(`/exercise/${exercise.id}`)}
               >
-                <Text style={styles.favoriteItemName}>{exercise.name}</Text>
-                <Text style={styles.favoriteItemCategory}>{exercise.category}</Text>
+                <Text style={[styles.favoriteItemName, { color: theme.text }]}>{exercise.name}</Text>
+                <Text style={[styles.favoriteItemCategory, { color: theme.secondaryText }]}>
+                  {exercise.category}
+                </Text>
               </TouchableOpacity>
             ))
           ) : (
-            <Text style={styles.emptyText}>No favorite exercises yet</Text>
+            <Text style={[styles.emptyText, { color: theme.secondaryText }]}>No favorite exercises yet</Text>
           )}
         </View>
 
         {/* Favorite workouts section */}
         <View style={styles.section}>
-          <Text style={styles.sectionTitle}>Favorite Workouts</Text>
+          <Text style={[styles.sectionTitle, { color: theme.text }]}>Favorite Workouts</Text>
           {favoriteWorkouts.length > 0 ? (
             favoriteWorkouts.map(workout => (
               <TouchableOpacity
                 key={workout.id}
-                style={styles.favoriteItem}
+                style={[styles.favoriteItem, { backgroundColor: '#f9f9f9' }]}
                 onPress={() => router.push(`/workout/${workout.id}`)}
               >
-                <Text style={styles.favoriteItemName}>{workout.name}</Text>
-                <Text style={styles.favoriteItemCategory}>{workout.exercises.length} exercises</Text>
+                <Text style={[styles.favoriteItemName, { color: theme.text }]}>{workout.name}</Text>
+                <Text style={[styles.favoriteItemCategory, { color: theme.secondaryText }]}>
+                  {workout.exercises.length} exercises
+                </Text>
               </TouchableOpacity>
             ))
           ) : (
-            <Text style={styles.emptyText}>No favorite workouts yet</Text>
+            <Text style={[styles.emptyText, { color: theme.secondaryText }]}>No favorite workouts yet</Text>
           )}
         </View>
 
@@ -166,11 +177,9 @@ export default function ProfileScreen() {
 const styles = StyleSheet.create({
   safeArea: {
     flex: 1,
-    backgroundColor: '#fff',
   },
   container: {
     flex: 1,
-    backgroundColor: '#fff',
   },
   headerContainer: {
     flexDirection: 'row',
@@ -186,7 +195,6 @@ const styles = StyleSheet.create({
   title: {
     fontSize: 28,
     fontWeight: '700',
-    color: '#333',
     fontFamily: 'Poppins-Bold',
   },
   settingsButton: {
@@ -200,7 +208,6 @@ const styles = StyleSheet.create({
     width: 100,
     height: 100,
     borderRadius: 50,
-    backgroundColor: '#f1f1f1',
     justifyContent: 'center',
     alignItems: 'center',
     marginBottom: 16,
@@ -211,19 +218,16 @@ const styles = StyleSheet.create({
   userName: {
     fontSize: 24,
     fontWeight: '600',
-    color: '#333',
     fontFamily: 'Poppins-SemiBold',
     marginBottom: 4,
   },
   userEmail: {
     fontSize: 16,
-    color: '#666',
     fontFamily: 'Poppins-Regular',
     marginBottom: 4,
   },
   userLevel: {
     fontSize: 14,
-    color: '#888',
     fontFamily: 'Poppins-Regular',
     marginBottom: 8,
   },
@@ -233,7 +237,6 @@ const styles = StyleSheet.create({
     padding: 16,
     borderTopWidth: 1,
     borderBottomWidth: 1,
-    borderColor: '#eee',
     marginVertical: 16,
   },
   statItem: {
@@ -245,12 +248,10 @@ const styles = StyleSheet.create({
   statValue: {
     fontSize: 20,
     fontWeight: '700',
-    color: '#333',
     fontFamily: 'Poppins-Bold',
   },
   statTitle: {
     fontSize: 14,
-    color: '#666',
     fontFamily: 'Poppins-Regular',
   },
   section: {
@@ -260,31 +261,26 @@ const styles = StyleSheet.create({
   sectionTitle: {
     fontSize: 20,
     fontWeight: '600',
-    color: '#333',
     marginBottom: 16,
     fontFamily: 'Poppins-SemiBold',
   },
   favoriteItem: {
     padding: 12,
-    backgroundColor: '#f9f9f9',
     borderRadius: 8,
     marginBottom: 12,
   },
   favoriteItemName: {
     fontSize: 16,
     fontWeight: '500',
-    color: '#333',
     fontFamily: 'Poppins-Medium',
   },
   favoriteItemCategory: {
     fontSize: 14,
-    color: '#666',
     fontFamily: 'Poppins-Regular',
     marginTop: 2,
   },
   emptyText: {
     textAlign: 'center',
-    color: '#999',
     fontSize: 16,
     marginVertical: 24,
     fontFamily: 'Poppins-Regular',
