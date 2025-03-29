@@ -1,12 +1,14 @@
+// app/settings.tsx
 import React from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, SafeAreaView, ScrollView, Switch, Platform } from 'react-native';
 import { Stack, useRouter } from 'expo-router';
 import { ChevronLeft, Bell, Moon, Clock, Users, HelpCircle, LogOut } from 'lucide-react-native';
+import { useTheme } from '@/context/ThemeContext';
 
 export default function SettingsScreen() {
   const router = useRouter();
+  const { isDarkMode, toggleDarkMode, theme } = useTheme();
   const [notifications, setNotifications] = React.useState(true);
-  const [darkMode, setDarkMode] = React.useState(false);
 
   const renderSettingItem = (
     icon: React.ReactNode,
@@ -15,30 +17,30 @@ export default function SettingsScreen() {
     onPress?: () => void
   ) => (
     <TouchableOpacity
-      style={styles.settingItem}
+      style={[styles.settingItem, { borderBottomColor: theme.border }]}
       onPress={onPress}
       disabled={!onPress}
     >
       <View style={styles.settingIcon}>{icon}</View>
-      <Text style={styles.settingTitle}>{title}</Text>
+      <Text style={[styles.settingTitle, { color: theme.text }]}>{title}</Text>
       <View style={styles.settingValue}>{value}</View>
     </TouchableOpacity>
   );
 
   return (
-    <SafeAreaView style={styles.safeArea}>
+    <SafeAreaView style={[styles.safeArea, { backgroundColor: theme.background }]}>
       <Stack.Screen options={{ headerShown: false }} />
       <View style={styles.header}>
         <TouchableOpacity onPress={() => router.back()} style={styles.backButton}>
-          <ChevronLeft size={24} color="#333" />
+          <ChevronLeft size={24} color={theme.text} />
         </TouchableOpacity>
-        <Text style={styles.title}>Settings</Text>
+        <Text style={[styles.title, { color: theme.text }]}>Settings</Text>
         <View style={{ width: 24 }} />
       </View>
 
-      <ScrollView style={styles.container}>
+      <ScrollView style={[styles.container, { backgroundColor: theme.background }]}>
         <View style={styles.section}>
-          <Text style={styles.sectionTitle}>App Settings</Text>
+          <Text style={[styles.sectionTitle, { color: theme.text }]}>App Settings</Text>
 
           {renderSettingItem(
             <Bell size={24} color="#FF5757" />,
@@ -46,8 +48,8 @@ export default function SettingsScreen() {
             <Switch
               value={notifications}
               onValueChange={setNotifications}
-              trackColor={{ false: "#ccc", true: "#FFA8A8" }}
-              thumbColor={notifications ? "#FF5757" : "#f4f3f4"}
+              trackColor={{ false: theme.inactive, true: "#FFA8A8" }}
+              thumbColor={notifications ? "#FF5757" : theme.inputBackground}
             />
           )}
 
@@ -55,23 +57,23 @@ export default function SettingsScreen() {
             <Moon size={24} color="#FF5757" />,
             "Dark Mode",
             <Switch
-              value={darkMode}
-              onValueChange={setDarkMode}
-              trackColor={{ false: "#ccc", true: "#FFA8A8" }}
-              thumbColor={darkMode ? "#FF5757" : "#f4f3f4"}
+              value={isDarkMode}
+              onValueChange={toggleDarkMode}
+              trackColor={{ false: theme.inactive, true: "#FFA8A8" }}
+              thumbColor={isDarkMode ? "#FF5757" : theme.inputBackground}
             />
           )}
 
           {renderSettingItem(
             <Clock size={24} color="#FF5757" />,
             "Workout Reminders",
-            <Text style={styles.settingSubtitle}>Daily at 6:00 PM</Text>,
+            <Text style={[styles.settingSubtitle, { color: theme.secondaryText }]}>Daily at 6:00 PM</Text>,
             () => console.log("Workout reminders pressed")
           )}
         </View>
 
         <View style={styles.section}>
-          <Text style={styles.sectionTitle}>Account</Text>
+          <Text style={[styles.sectionTitle, { color: theme.text }]}>Account</Text>
 
           {renderSettingItem(
             <Users size={24} color="#FF5757" />,
@@ -88,12 +90,12 @@ export default function SettingsScreen() {
           )}
         </View>
 
-        <TouchableOpacity style={styles.logoutButton}>
+        <TouchableOpacity style={[styles.logoutButton, { borderColor: "#FF5757" }]}>
           <LogOut size={20} color="#FF5757" />
           <Text style={styles.logoutText}>Log Out</Text>
         </TouchableOpacity>
 
-        <Text style={styles.versionText}>Version 1.0.0</Text>
+        <Text style={[styles.versionText, { color: theme.secondaryText }]}>Version 1.0.0</Text>
       </ScrollView>
     </SafeAreaView>
   );
@@ -102,11 +104,9 @@ export default function SettingsScreen() {
 const styles = StyleSheet.create({
   safeArea: {
     flex: 1,
-    backgroundColor: '#fff',
   },
   container: {
     flex: 1,
-    backgroundColor: '#fff',
   },
   header: {
     flexDirection: 'row',
@@ -122,7 +122,6 @@ const styles = StyleSheet.create({
   title: {
     fontSize: 20,
     fontWeight: '600',
-    color: '#333',
     fontFamily: 'Poppins-SemiBold',
     textAlign: 'center',
   },
@@ -133,7 +132,6 @@ const styles = StyleSheet.create({
   sectionTitle: {
     fontSize: 18,
     fontWeight: '600',
-    color: '#333',
     marginBottom: 16,
     fontFamily: 'Poppins-SemiBold',
   },
@@ -142,7 +140,6 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     paddingVertical: 12,
     borderBottomWidth: 1,
-    borderBottomColor: '#f0f0f0',
   },
   settingIcon: {
     marginRight: 16,
@@ -150,7 +147,6 @@ const styles = StyleSheet.create({
   settingTitle: {
     flex: 1,
     fontSize: 16,
-    color: '#333',
     fontFamily: 'Poppins-Regular',
   },
   settingValue: {
@@ -158,7 +154,6 @@ const styles = StyleSheet.create({
   },
   settingSubtitle: {
     fontSize: 14,
-    color: '#888',
     fontFamily: 'Poppins-Regular',
   },
   logoutButton: {
@@ -169,7 +164,6 @@ const styles = StyleSheet.create({
     marginTop: 16,
     marginHorizontal: 16,
     borderWidth: 1,
-    borderColor: '#FF5757',
     borderRadius: 8,
   },
   logoutText: {
@@ -180,7 +174,6 @@ const styles = StyleSheet.create({
   },
   versionText: {
     textAlign: 'center',
-    color: '#999',
     fontSize: 14,
     marginVertical: 24,
     fontFamily: 'Poppins-Regular',

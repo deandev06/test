@@ -1,3 +1,4 @@
+// app/(tabs)/index.tsx
 import React, { useState, useEffect } from 'react';
 import { View, Text, StyleSheet, ScrollView, TouchableOpacity, SafeAreaView, Platform } from 'react-native';
 import { useRouter } from 'expo-router';
@@ -5,15 +6,17 @@ import { Play } from 'lucide-react-native';
 import { getExercises, getWorkoutPlans, toggleExerciseFavorite, toggleWorkoutPlanFavorite } from '@/utils/storage';
 import { initializeAppData } from '@/utils/dataInitializer';
 import { Exercise, WorkoutPlan } from '@/types';
-import ExerciseCard from '../../components/ExerciseCard';
-import WorkoutCard from '../../components/WorkoutCard';
-import SearchBar from '../../components/SearchBar';
-import CategoryFilter from '../../components/CategoryFilter';
+import ExerciseCard from '@/components/ExerciseCard';
+import WorkoutCard from '@/components/WorkoutCard';
+import SearchBar from '@/components/SearchBar';
+import CategoryFilter from '@/components/CategoryFilter';
 import { useFocusEffect } from '@react-navigation/native';
 import Header from '@/components/Header';
+import { useTheme } from '@/context/ThemeContext';
 
 export default function HomeScreen() {
   const router = useRouter();
+  const { theme } = useTheme();
   const [searchQuery, setSearchQuery] = useState('');
   const [exercises, setExercises] = useState<Exercise[]>([]);
   const [workouts, setWorkouts] = useState<WorkoutPlan[]>([]);
@@ -85,7 +88,7 @@ export default function HomeScreen() {
       ex.description.toLowerCase().includes(searchQuery.toLowerCase())
     )
     .filter(ex => selectedCategory ? ex.category === selectedCategory : true)
-    .slice(0, 3); // Reduced from 6 to 3 exercises
+    .slice(0, 3);
 
   // Filter workouts similar to exercises
   const filteredWorkouts = workouts
@@ -94,11 +97,14 @@ export default function HomeScreen() {
       w.description.toLowerCase().includes(searchQuery.toLowerCase())
     )
     .filter(w => featuredWorkout ? w.id !== featuredWorkout.id : true) // Exclude featured workout
-    .slice(0, 3); // Show only 3 workouts
+    .slice(0, 3);
 
   return (
-    <SafeAreaView style={styles.safeArea}>
-      <ScrollView style={styles.container} showsVerticalScrollIndicator={false}>
+    <SafeAreaView style={[styles.safeArea, { backgroundColor: theme.background }]}>
+      <ScrollView
+        style={[styles.container, { backgroundColor: theme.background }]}
+        showsVerticalScrollIndicator={false}
+      >
         <Header title="Ready to workout?" />
 
         <SearchBar
@@ -109,12 +115,14 @@ export default function HomeScreen() {
 
         {featuredWorkout && (
           <View style={styles.featuredContainer}>
-            <Text style={styles.sectionTitle}>Featured Workout</Text>
+            <Text style={[styles.sectionTitle, { color: theme.text }]}>Featured Workout</Text>
             <WorkoutCard
               workout={featuredWorkout}
-              onToggleFavorite={handleToggleWorkoutFavorite} onDelete={function(id: string): void {
-              throw new Error('Function not implemented.');
-            }}            />
+              onToggleFavorite={handleToggleWorkoutFavorite}
+              onDelete={(id: string) => {
+                // Implement delete function
+              }}
+            />
             <TouchableOpacity
               style={styles.startButton}
               onPress={handleStartFeaturedWorkout}
@@ -126,7 +134,7 @@ export default function HomeScreen() {
         )}
 
         <View style={styles.exercisesContainer}>
-          <Text style={styles.sectionTitle}>Exercises</Text>
+          <Text style={[styles.sectionTitle, { color: theme.text }]}>Exercises</Text>
 
           <CategoryFilter
             categories={exerciseCategories}
@@ -138,13 +146,15 @@ export default function HomeScreen() {
             <ExerciseCard
               key={exercise.id}
               exercise={exercise}
-              onToggleFavorite={handleToggleExerciseFavorite} onDelete={function(id: string): void {
-              throw new Error('Function not implemented.');
-            }}            />
+              onToggleFavorite={handleToggleExerciseFavorite}
+              onDelete={(id: string) => {
+                // Implement delete function
+              }}
+            />
           ))}
 
           {filteredExercises.length === 0 && (
-            <Text style={styles.emptyText}>No exercises found</Text>
+            <Text style={[styles.emptyText, { color: theme.secondaryText }]}>No exercises found</Text>
           )}
 
           <TouchableOpacity
@@ -156,19 +166,21 @@ export default function HomeScreen() {
         </View>
 
         <View style={styles.workoutsContainer}>
-          <Text style={styles.sectionTitle}>Workouts</Text>
+          <Text style={[styles.sectionTitle, { color: theme.text }]}>Workouts</Text>
 
           {filteredWorkouts.map(workout => (
             <WorkoutCard
               key={workout.id}
               workout={workout}
-              onToggleFavorite={handleToggleWorkoutFavorite} onDelete={function(id: string): void {
-              throw new Error('Function not implemented.');
-            }}            />
+              onToggleFavorite={handleToggleWorkoutFavorite}
+              onDelete={(id: string) => {
+                // Implement delete function
+              }}
+            />
           ))}
 
           {filteredWorkouts.length === 0 && (
-            <Text style={styles.emptyText}>No additional workouts found</Text>
+            <Text style={[styles.emptyText, { color: theme.secondaryText }]}>No additional workouts found</Text>
           )}
 
           <TouchableOpacity
@@ -183,14 +195,13 @@ export default function HomeScreen() {
   );
 }
 
+// Styles remain mostly the same, themed colors are applied inline
 const styles = StyleSheet.create({
   safeArea: {
     flex: 1,
-    backgroundColor: '#fff',
   },
   container: {
     flex: 1,
-    backgroundColor: '#fff',
   },
   header: {
     paddingHorizontal: 16,
@@ -200,13 +211,11 @@ const styles = StyleSheet.create({
   },
   greeting: {
     fontSize: 16,
-    color: '#666',
     fontFamily: 'Poppins-Regular',
   },
   title: {
     fontSize: 28,
     fontWeight: '700',
-    color: '#333',
     fontFamily: 'Poppins-Bold',
   },
   featuredContainer: {
@@ -215,7 +224,6 @@ const styles = StyleSheet.create({
   sectionTitle: {
     fontSize: 20,
     fontWeight: '600',
-    color: '#333',
     marginBottom: 16,
     fontFamily: 'Poppins-SemiBold',
   },
@@ -247,7 +255,6 @@ const styles = StyleSheet.create({
   },
   emptyText: {
     textAlign: 'center',
-    color: '#999',
     fontSize: 16,
     marginVertical: 24,
     fontFamily: 'Poppins-Regular',

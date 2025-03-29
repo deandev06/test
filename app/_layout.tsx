@@ -1,7 +1,8 @@
-import { useEffect } from 'react';
+import React, { useEffect } from 'react';
 import { Stack } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 import { SplashScreen } from 'expo-router';
+import { ThemeProvider } from '@/context/ThemeContext';
 import {
   useFonts,
   Poppins_400Regular,
@@ -26,22 +27,19 @@ export default function RootLayout() {
 
   useEffect(() => {
     if (fontsLoaded || fontError) {
-
       SplashScreen.hideAsync();
-
       if (fontsLoaded) {
         window.frameworkReady?.();
       }
     }
   }, [fontsLoaded, fontError]);
 
-  // Prevent rendering until the font has loaded or an error was encountered
   if (!fontsLoaded && !fontError) {
     return null;
   }
 
   return (
-    <>
+    <ThemeProvider>
       <Stack screenOptions={{ headerShown: false }}>
         <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
         <Stack.Screen name="exercise/[id]" options={{ presentation: 'card' }} />
@@ -52,6 +50,6 @@ export default function RootLayout() {
         <Stack.Screen name="+not-found" options={{ title: 'Oops!' }} />
       </Stack>
       <StatusBar style="auto" />
-    </>
+    </ThemeProvider>
   );
 }
