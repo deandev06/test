@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { View, Text, StyleSheet, ScrollView, SafeAreaView, Platform, Dimensions } from 'react-native';
+import { View, Text, StyleSheet, ScrollView, SafeAreaView, Platform, Dimensions, TouchableOpacity } from 'react-native';
 import { PanGestureHandler, GestureHandlerRootView } from 'react-native-gesture-handler';
 import Animated, {
   useAnimatedGestureHandler,
@@ -13,10 +13,13 @@ import { Exercise, WorkoutPlan } from '../../types';
 import ExerciseCard from '../../components/ExerciseCard';
 import WorkoutCard from '../../components/WorkoutCard';
 import Header from '@/components/Header';
+import { useTheme } from '@/context/ThemeContext';
+import { useFocusEffect } from '@react-navigation/native';
 
 const { width: SCREEN_WIDTH } = Dimensions.get('window');
 
 export default function FavoritesScreen() {
+  const { theme } = useTheme();
   const [exercises, setExercises] = useState<Exercise[]>([]);
   const [workouts, setWorkouts] = useState<WorkoutPlan[]>([]);
   const [activeTab, setActiveTab] = useState<'workouts' | 'exercises'>('workouts');
@@ -25,36 +28,25 @@ export default function FavoritesScreen() {
   const translateX = useSharedValue(0);
   const scrollViewRef = useRef<ScrollView>(null);
 
+  const loadData = async () => {
+    const loadedExercises = await getExercises();
+    setExercises(loadedExercises.filter(ex => ex.isFavorite));
+
+    const loadedWorkouts = await getWorkoutPlans();
+    setWorkouts(loadedWorkouts.filter(w => w.isFavorite));
+  };
+
+  // Use useFocusEffect to refresh data whenever the screen comes into focus
+  useFocusEffect(
+    React.useCallback(() => {
+      loadData();
+      return () => {};
+    }, [])
+  );
+
+  // Initial load
   useEffect(() => {
-    const loadData = async () => {
-      const loadedExercises = await getExercises();
-      setExercises(loadedExercises.filter(ex => ex.isFavorite));
-
-      const loadedWorkouts = await getWorkoutPlans();
-      setWorkouts(loadedWorkouts.filter(w => w.isFavorite));
-    };
-
     loadData();
-  }, []);
-
-  // Add a listener to refresh data when this screen is focused
-  useEffect(() => {
-    const refreshFavorites = async () => {
-      const loadedExercises = await getExercises();
-      setExercises(loadedExercises.filter(ex => ex.isFavorite));
-
-      const loadedWorkouts = await getWorkoutPlans();
-      setWorkouts(loadedWorkouts.filter(w => w.isFavorite));
-    };
-
-    // Initial load
-    refreshFavorites();
-
-    // Set up an interval to refresh data every 2 seconds
-    const intervalId = setInterval(refreshFavorites, 2000);
-
-    // Clean up the interval when component unmounts
-    return () => clearInterval(intervalId);
   }, []);
 
   const handleToggleExerciseFavorite = async (id: string) => {
@@ -121,29 +113,43 @@ export default function FavoritesScreen() {
 
   return (
     <GestureHandlerRootView style={{ flex: 1 }}>
-      <SafeAreaView style={styles.safeArea}>
-        <View style={styles.container}>
+      <SafeAreaView style={[styles.safeArea, { backgroundColor: theme.background }]}>
+        <View style={[styles.container, { backgroundColor: theme.background }]}>
           <Header title="Favorites" />
           <View style={styles.tabContainer}>
             <View style={styles.tabButtons}>
-              <Text
+              <TouchableOpacity
                 style={[
                   styles.tabButton,
                   activeTab === 'workouts' && styles.activeTabButton
                 ]}
                 onPress={() => changeTab('workouts')}
               >
-                Workouts
-              </Text>
-              <Text
+                <Text
+                  style={[
+                    styles.tabButtonText,
+                    { color: activeTab === 'workouts' ? '#FF5757' : theme.secondaryText }
+                  ]}
+                >
+                  Workouts
+                </Text>
+              </TouchableOpacity>
+              <TouchableOpacity
                 style={[
                   styles.tabButton,
                   activeTab === 'exercises' && styles.activeTabButton
                 ]}
                 onPress={() => changeTab('exercises')}
               >
-                Exercises
-              </Text>
+                <Text
+                  style={[
+                    styles.tabButtonText,
+                    { color: activeTab === 'exercises' ? '#FF5757' : theme.secondaryText }
+                  ]}
+                >
+                  Exercises
+                </Text>
+              </TouchableOpacity>
             </View>
             <View style={styles.tabIndicatorContainer}>
               <View
@@ -168,14 +174,16 @@ export default function FavoritesScreen() {
                       <WorkoutCard
                         key={workout.id}
                         workout={workout}
-                        onToggleFavorite={handleToggleWorkoutFavorite} onDelete={function(id: string): void {
-                        throw new Error('Function not implemented.');
-                      }}                      />
+                        onToggleFavorite={handleToggleWorkoutFavorite}
+                        onDelete={(id: string) => {
+                          // Implement delete function
+                        }}
+                      />
                     ))
                   ) : (
                     <View style={styles.emptyContainer}>
-                      <Text style={styles.emptyTitle}>No Favorite Workouts</Text>
-                      <Text style={styles.emptyText}>
+                      <Text style={[styles.emptyTitle, { color: theme.text }]}>No Favorite Workouts</Text>
+                      <Text style={[styles.emptyText, { color: theme.secondaryText }]}>
                         Add workouts to your favorites by tapping the heart icon.
                       </Text>
                     </View>
@@ -193,14 +201,16 @@ export default function FavoritesScreen() {
                       <ExerciseCard
                         key={exercise.id}
                         exercise={exercise}
-                        onToggleFavorite={handleToggleExerciseFavorite} onDelete={function(id: string): void {
-                        throw new Error('Function not implemented.');
-                      }}                      />
+                        onToggleFavorite={handleToggleExerciseFavorite}
+                        onDelete={(id: string) => {
+                          // Implement delete function
+                        }}
+                      />
                     ))
                   ) : (
                     <View style={styles.emptyContainer}>
-                      <Text style={styles.emptyTitle}>No Favorite Exercises</Text>
-                      <Text style={styles.emptyText}>
+                      <Text style={[styles.emptyTitle, { color: theme.text }]}>No Favorite Exercises</Text>
+                      <Text style={[styles.emptyText, { color: theme.secondaryText }]}>
                         Add exercises to your favorites by tapping the heart icon.
                       </Text>
                     </View>
@@ -218,23 +228,9 @@ export default function FavoritesScreen() {
 const styles = StyleSheet.create({
   safeArea: {
     flex: 1,
-    backgroundColor: '#fff',
   },
   container: {
     flex: 1,
-    backgroundColor: '#fff',
-  },
-  header: {
-    paddingHorizontal: 16,
-    paddingTop: Platform.OS === 'web' ? 24 : 12,
-    paddingBottom: 8,
-    width: '100%',
-  },
-  title: {
-    fontSize: 28,
-    fontWeight: '700',
-    color: '#333',
-    fontFamily: 'Poppins-Bold',
   },
   tabContainer: {
     paddingHorizontal: 16,
@@ -246,15 +242,16 @@ const styles = StyleSheet.create({
   },
   tabButton: {
     flex: 1,
-    textAlign: 'center',
+    alignItems: 'center',
     paddingVertical: 12,
+  },
+  tabButtonText: {
     fontSize: 16,
     fontWeight: '600',
-    color: '#999',
     fontFamily: 'Poppins-SemiBold',
   },
   activeTabButton: {
-    color: '#FF5757',
+    // Active state styling handled through text color
   },
   tabIndicatorContainer: {
     height: 3,
@@ -291,13 +288,11 @@ const styles = StyleSheet.create({
   emptyTitle: {
     fontSize: 20,
     fontWeight: '600',
-    color: '#333',
     marginBottom: 8,
     fontFamily: 'Poppins-SemiBold',
   },
   emptyText: {
     fontSize: 16,
-    color: '#999',
     textAlign: 'center',
     fontFamily: 'Poppins-Regular',
     paddingHorizontal: 32,

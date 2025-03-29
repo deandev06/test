@@ -1,5 +1,16 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, StyleSheet, ScrollView, SafeAreaView, Platform, TouchableOpacity, Modal, Alert } from 'react-native';
+import {
+  View,
+  Text,
+  StyleSheet,
+  ScrollView,
+  SafeAreaView,
+  Platform,
+  TouchableOpacity,
+  Modal,
+  Alert,
+  StatusBar
+} from 'react-native';
 import { getExercises, getWorkoutPlans, toggleExerciseFavorite, toggleWorkoutPlanFavorite, deleteExercise, deleteWorkoutPlan } from '../../utils/storage';
 import { Exercise, WorkoutPlan } from '../../types';
 import ExerciseCard from '../../components/ExerciseCard';
@@ -8,9 +19,11 @@ import SearchBar from '../../components/SearchBar';
 import { Plus, Filter } from 'lucide-react-native';
 import { useRouter } from 'expo-router';
 import { useFocusEffect } from '@react-navigation/native';
+import { useTheme } from '@/context/ThemeContext';
 
 export default function WorkoutsScreen() {
   const router = useRouter();
+  const { theme } = useTheme();
   const [searchQuery, setSearchQuery] = useState('');
   const [exercises, setExercises] = useState<Exercise[]>([]);
   const [workouts, setWorkouts] = useState<WorkoutPlan[]>([]);
@@ -130,10 +143,10 @@ export default function WorkoutsScreen() {
     .filter(w => selectedCategory ? w.category === selectedCategory : true);
 
   return (
-    <SafeAreaView style={styles.safeArea}>
-      <View style={styles.container}>
+    <SafeAreaView style={[styles.safeArea, { backgroundColor: theme.background }]}>
+      <View style={[styles.container, { backgroundColor: theme.background }]}>
         <View style={styles.header}>
-          <Text style={styles.title}>Library</Text>
+          <Text style={[styles.title, { color: theme.text }]}>Library</Text>
           <TouchableOpacity
             style={styles.addButton}
             onPress={handleAddNew}
@@ -155,7 +168,7 @@ export default function WorkoutsScreen() {
             style={styles.filterButton}
             onPress={() => setFilterModalVisible(true)}
           >
-            <Filter size={20} color={selectedCategory ? "#FF5757" : "#666"} />
+            <Filter size={20} color={selectedCategory ? "#FF5757" : theme.secondaryText} />
           </TouchableOpacity>
         </View>
 
@@ -164,7 +177,8 @@ export default function WorkoutsScreen() {
             <Text
               style={[
                 styles.tabButton,
-                activeTab === 'workouts' && styles.activeTabButton
+                { color: theme.secondaryText },
+                activeTab === 'workouts' && [styles.activeTabButton, { color: "#FF5757" }]
               ]}
               onPress={() => {
                 setActiveTab('workouts');
@@ -176,7 +190,8 @@ export default function WorkoutsScreen() {
             <Text
               style={[
                 styles.tabButton,
-                activeTab === 'exercises' && styles.activeTabButton
+                { color: theme.secondaryText },
+                activeTab === 'exercises' && [styles.activeTabButton, { color: "#FF5757" }]
               ]}
               onPress={() => {
                 setActiveTab('exercises');
@@ -186,7 +201,7 @@ export default function WorkoutsScreen() {
               Exercises
             </Text>
           </View>
-          <View style={styles.tabIndicatorContainer}>
+          <View style={[styles.tabIndicatorContainer, { backgroundColor: theme.border }]}>
             <View
               style={[
                 styles.tabIndicator,
@@ -198,7 +213,7 @@ export default function WorkoutsScreen() {
 
         {selectedCategory && (
           <View style={styles.activeFilterContainer}>
-            <Text style={styles.activeFilterText}>
+            <Text style={[styles.activeFilterText, { color: theme.text }]}>
               Filtered by: {selectedCategory}
             </Text>
             <TouchableOpacity onPress={() => setSelectedCategory(null)}>
@@ -207,9 +222,12 @@ export default function WorkoutsScreen() {
           </View>
         )}
 
-        <ScrollView style={styles.contentContainer} showsVerticalScrollIndicator={false}>
+        <ScrollView
+          style={styles.contentContainer}
+          showsVerticalScrollIndicator={false}
+        >
           {isLoading ? (
-            <Text style={styles.emptyText}>Loading...</Text>
+            <Text style={[styles.emptyText, { color: theme.secondaryText }]}>Loading...</Text>
           ) : activeTab === 'workouts' ? (
             <>
               {filteredWorkouts.map(workout => (
@@ -222,7 +240,7 @@ export default function WorkoutsScreen() {
               ))}
 
               {filteredWorkouts.length === 0 && (
-                <Text style={styles.emptyText}>No workouts found</Text>
+                <Text style={[styles.emptyText, { color: theme.secondaryText }]}>No workouts found</Text>
               )}
             </>
           ) : (
@@ -237,7 +255,7 @@ export default function WorkoutsScreen() {
               ))}
 
               {filteredExercises.length === 0 && (
-                <Text style={styles.emptyText}>No exercises found</Text>
+                <Text style={[styles.emptyText, { color: theme.secondaryText }]}>No exercises found</Text>
               )}
             </>
           )}
@@ -256,19 +274,21 @@ export default function WorkoutsScreen() {
           activeOpacity={1}
           onPress={() => setFilterModalVisible(false)}
         >
-          <View style={styles.modalContainer}>
+          <View style={[styles.modalContainer, { backgroundColor: theme.background }]}>
             <View style={styles.modalContent} onStartShouldSetResponder={() => true}>
-              <Text style={styles.modalTitle}>Filter by Category</Text>
+              <Text style={[styles.modalTitle, { color: theme.text }]}>Filter by Category</Text>
 
               <TouchableOpacity
                 style={[
                   styles.categoryItem,
+                  { borderBottomColor: theme.border },
                   selectedCategory === null && styles.selectedCategoryItem
                 ]}
                 onPress={() => handleSelectCategory(null)}
               >
                 <Text style={[
                   styles.categoryText,
+                  { color: theme.text },
                   selectedCategory === null && styles.selectedCategoryText
                 ]}>
                   All
@@ -280,12 +300,14 @@ export default function WorkoutsScreen() {
                   key={category}
                   style={[
                     styles.categoryItem,
+                    { borderBottomColor: theme.border },
                     selectedCategory === category && styles.selectedCategoryItem
                   ]}
                   onPress={() => handleSelectCategory(category)}
                 >
                   <Text style={[
                     styles.categoryText,
+                    { color: theme.text },
                     selectedCategory === category && styles.selectedCategoryText
                   ]}>
                     {category}
@@ -300,30 +322,27 @@ export default function WorkoutsScreen() {
   );
 }
 
-// Styles remain the same as in your original file
 const styles = StyleSheet.create({
-  // All your existing styles should be copied here...
   safeArea: {
     flex: 1,
-    backgroundColor: '#fff',
   },
   container: {
     flex: 1,
-    backgroundColor: '#fff',
   },
   header: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
     paddingHorizontal: 16,
-    paddingTop: Platform.OS === 'web' ? 24 : 12,
+    paddingTop: Platform.OS === 'ios' ?
+      (StatusBar.currentHeight || 0) + 30 :
+      (StatusBar.currentHeight || 0) + 20,
     paddingBottom: 8,
     width: '100%',
   },
   title: {
     fontSize: 28,
     fontWeight: '700',
-    color: '#333',
     fontFamily: 'Poppins-Bold',
   },
   addButton: {
@@ -368,15 +387,13 @@ const styles = StyleSheet.create({
     paddingVertical: 12,
     fontSize: 16,
     fontWeight: '600',
-    color: '#999',
     fontFamily: 'Poppins-SemiBold',
   },
   activeTabButton: {
-    color: '#FF5757',
+    // color is now applied dynamically
   },
   tabIndicatorContainer: {
     height: 3,
-    backgroundColor: '#f0f0f0',
     borderRadius: 1.5,
     position: 'relative',
   },
@@ -394,7 +411,6 @@ const styles = StyleSheet.create({
   },
   emptyText: {
     textAlign: 'center',
-    color: '#999',
     fontSize: 16,
     marginVertical: 24,
     fontFamily: 'Poppins-Regular',
@@ -405,7 +421,6 @@ const styles = StyleSheet.create({
     justifyContent: 'flex-end',
   },
   modalContainer: {
-    backgroundColor: 'white',
     borderTopLeftRadius: 20,
     borderTopRightRadius: 20,
     paddingBottom: Platform.OS === 'ios' ? 40 : 20,
@@ -417,20 +432,17 @@ const styles = StyleSheet.create({
     fontSize: 18,
     fontWeight: '600',
     marginBottom: 16,
-    color: '#333',
     fontFamily: 'Poppins-SemiBold',
   },
   categoryItem: {
     paddingVertical: 12,
     borderBottomWidth: 1,
-    borderBottomColor: '#f0f0f0',
   },
   selectedCategoryItem: {
     backgroundColor: '#fff0f0',
   },
   categoryText: {
     fontSize: 16,
-    color: '#333',
     fontFamily: 'Poppins-Regular',
   },
   selectedCategoryText: {
@@ -449,7 +461,6 @@ const styles = StyleSheet.create({
   },
   activeFilterText: {
     fontSize: 14,
-    color: '#333',
     fontFamily: 'Poppins-Regular',
   },
   clearFilterText: {
