@@ -47,9 +47,45 @@ export default function ExerciseCard({ exercise, onToggleFavorite, onDelete }: E
     );
   };
 
+  // Determine if we're in dark mode based on the background color brightness
+  // This is a simple approach - we assume dark backgrounds have lower brightness values
+  const isDarkMode = theme.background.startsWith('#0') || theme.background.startsWith('#1') ||
+    theme.background.startsWith('#2') || theme.background.startsWith('#3');
+
+  // Adjust overlay based on background brightness
+  const overlayColor = isDarkMode
+    ? 'rgba(0, 0, 0, 0.6)'
+    : 'rgba(0, 0, 0, 0.4)';
+
+  // Use the theme's text colors
+  const textColor = '#fff'; // Keep white for contrast over the image
+  const secondaryTextColor = 'rgba(255, 255, 255, 0.8)';
+
+  const tagBackgroundColor = isDarkMode
+    ? 'rgba(30, 30, 30, 0.6)'
+    : 'rgba(255, 255, 255, 0.2)';
+
+  const iconColor = '#fff'; // Keep white for contrast
+
   return (
     <TouchableOpacity
-      style={[styles.card, { backgroundColor: theme.cardBackground }]}
+      style={[
+        styles.card,
+        {
+          backgroundColor: theme.card,
+          ...Platform.select({
+            web: {
+              boxShadow: isDarkMode
+                ? '0 4px 6px rgba(0, 0, 0, 0.3)'
+                : '0 4px 6px rgba(0, 0, 0, 0.1)',
+            },
+            default: {
+              shadowColor: '#000',
+              shadowOpacity: isDarkMode ? 0.3 : 0.1,
+            },
+          }),
+        }
+      ]}
       onPress={handlePress}
       activeOpacity={0.9}
     >
@@ -58,10 +94,15 @@ export default function ExerciseCard({ exercise, onToggleFavorite, onDelete }: E
         style={styles.image}
         resizeMode="cover"
       />
-      <View style={styles.overlay}>
+      <View style={[
+        styles.overlay,
+        { backgroundColor: overlayColor }
+      ]}>
         <View style={styles.contentContainer}>
           <View style={styles.headerContainer}>
-            <Text style={styles.title}>{exercise.name}</Text>
+            <Text style={[styles.title, { color: textColor }]}>
+              {exercise.name}
+            </Text>
             <View style={styles.actionButtons}>
               <TouchableOpacity
                 style={styles.actionButton}
@@ -71,7 +112,7 @@ export default function ExerciseCard({ exercise, onToggleFavorite, onDelete }: E
               >
                 <Trash2
                   size={22}
-                  color="#fff"
+                  color={iconColor}
                 />
               </TouchableOpacity>
               <TouchableOpacity
@@ -81,7 +122,7 @@ export default function ExerciseCard({ exercise, onToggleFavorite, onDelete }: E
               >
                 <Heart
                   size={22}
-                  color={exercise.isFavorite ? '#FF5757' : '#fff'}
+                  color={exercise.isFavorite ? '#FF5757' : iconColor}
                   fill={exercise.isFavorite ? '#FF5757' : 'transparent'}
                 />
               </TouchableOpacity>
@@ -90,14 +131,20 @@ export default function ExerciseCard({ exercise, onToggleFavorite, onDelete }: E
 
           <View style={styles.detailsContainer}>
             <View style={styles.tagContainer}>
-              <Text style={styles.tag}>{exercise.category}</Text>
-              <Text style={styles.tag}>{exercise.difficultyLevel}</Text>
+              <Text style={[styles.tag, { backgroundColor: tagBackgroundColor, color: textColor }]}>
+                {exercise.category}
+              </Text>
+              <Text style={[styles.tag, { backgroundColor: tagBackgroundColor, color: textColor }]}>
+                {exercise.difficultyLevel}
+              </Text>
               {exercise.equipment && exercise.equipment.length > 0 && (
-                <Text style={styles.tag}>{exercise.equipment.join(', ')}</Text>
+                <Text style={[styles.tag, { backgroundColor: tagBackgroundColor, color: textColor }]}>
+                  {exercise.equipment.join(', ')}
+                </Text>
               )}
             </View>
 
-            <Text style={styles.description} numberOfLines={2}>
+            <Text style={[styles.description, { color: secondaryTextColor }]} numberOfLines={2}>
               {exercise.description}
             </Text>
           </View>

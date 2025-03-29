@@ -4,8 +4,10 @@ import { useLocalSearchParams, useRouter } from 'expo-router';
 import { Heart, ArrowLeft, Clock, Dumbbell, BarChart3 } from 'lucide-react-native';
 import { getExerciseById, toggleExerciseFavorite } from '../../utils/storage';
 import { Exercise } from '../../types';
+import { useTheme } from '@/context/ThemeContext';
 
 export default function ExerciseDetailScreen() {
+  const { theme } = useTheme();
   const { id } = useLocalSearchParams<{ id: string }>();
   const router = useRouter();
   const [exercise, setExercise] = useState<Exercise | null>(null);
@@ -19,7 +21,7 @@ export default function ExerciseDetailScreen() {
       }
       setLoading(false);
     };
-    
+
     loadExercise();
   }, [id]);
 
@@ -33,16 +35,16 @@ export default function ExerciseDetailScreen() {
 
   if (loading) {
     return (
-      <View style={styles.loadingContainer}>
-        <Text style={styles.loadingText}>Loading...</Text>
+      <View style={[styles.loadingContainer, { backgroundColor: theme.background }]}>
+        <Text style={[styles.loadingText, { color: theme.secondaryText }]}>Loading...</Text>
       </View>
     );
   }
 
   if (!exercise) {
     return (
-      <View style={styles.errorContainer}>
-        <Text style={styles.errorText}>Exercise not found</Text>
+      <View style={[styles.errorContainer, { backgroundColor: theme.background }]}>
+        <Text style={[styles.errorText, { color: theme.secondaryText }]}>Exercise not found</Text>
         <TouchableOpacity style={styles.backButton} onPress={() => router.back()}>
           <Text style={styles.backButtonText}>Go Back</Text>
         </TouchableOpacity>
@@ -51,93 +53,108 @@ export default function ExerciseDetailScreen() {
   }
 
   return (
-    <SafeAreaView style={styles.safeArea}>
-      <ScrollView style={styles.container} showsVerticalScrollIndicator={false}>
+    <SafeAreaView style={[styles.safeArea, { backgroundColor: theme.background }]}>
+      <ScrollView
+        style={[styles.container, { backgroundColor: theme.background }]}
+        showsVerticalScrollIndicator={false}
+      >
         <View style={styles.imageContainer}>
-          <Image 
-            source={{ uri: exercise.imageUrl }} 
-            style={styles.image} 
+          <Image
+            source={{ uri: exercise.imageUrl }}
+            style={styles.image}
             resizeMode="cover"
           />
           <View style={styles.overlay}>
-            <TouchableOpacity 
-              style={styles.backButton} 
+            <TouchableOpacity
+              style={styles.backButton}
               onPress={() => router.back()}
             >
               <ArrowLeft size={24} color="#fff" />
             </TouchableOpacity>
-            
-            <TouchableOpacity 
-              style={styles.favoriteButton} 
+
+            <TouchableOpacity
+              style={styles.favoriteButton}
               onPress={handleToggleFavorite}
             >
-              <Heart 
-                size={24} 
-                color="#fff" 
-                fill={exercise.isFavorite ? '#fff' : 'transparent'} 
+              <Heart
+                size={24}
+                color="#fff"
+                fill={exercise.isFavorite ? '#fff' : 'transparent'}
               />
             </TouchableOpacity>
           </View>
         </View>
-        
+
         <View style={styles.contentContainer}>
-          <Text style={styles.title}>{exercise.name}</Text>
-          
+          <Text style={[styles.title, { color: theme.text }]}>{exercise.name}</Text>
+
           <View style={styles.tagsContainer}>
-            <View style={styles.tag}>
-              <BarChart3 size={16} color="#666" />
-              <Text style={styles.tagText}>{exercise.difficultyLevel}</Text>
+            <View style={[styles.tag, { backgroundColor: theme.inputBackground }]}>
+              <BarChart3 size={16} color={theme.secondaryText} />
+              <Text style={[styles.tagText, { color: theme.secondaryText }]}>
+                {exercise.difficultyLevel}
+              </Text>
             </View>
-            
-            <View style={styles.tag}>
-              <Dumbbell size={16} color="#666" />
-              <Text style={styles.tagText}>{exercise.category}</Text>
+
+            <View style={[styles.tag, { backgroundColor: theme.inputBackground }]}>
+              <Dumbbell size={16} color={theme.secondaryText} />
+              <Text style={[styles.tagText, { color: theme.secondaryText }]}>
+                {exercise.category}
+              </Text>
             </View>
-            
+
             {(exercise.duration || exercise.repetitions) && (
-              <View style={styles.tag}>
-                <Clock size={16} color="#666" />
-                <Text style={styles.tagText}>
-                  {exercise.duration 
-                    ? `${exercise.duration} sec` 
+              <View style={[styles.tag, { backgroundColor: theme.inputBackground }]}>
+                <Clock size={16} color={theme.secondaryText} />
+                <Text style={[styles.tagText, { color: theme.secondaryText }]}>
+                  {exercise.duration
+                    ? `${exercise.duration} sec`
                     : `${exercise.repetitions} reps`}
                 </Text>
               </View>
             )}
           </View>
-          
+
           <View style={styles.section}>
-            <Text style={styles.sectionTitle}>Description</Text>
-            <Text style={styles.description}>{exercise.description}</Text>
+            <Text style={[styles.sectionTitle, { color: theme.text }]}>Description</Text>
+            <Text style={[styles.description, { color: theme.secondaryText }]}>
+              {exercise.description}
+            </Text>
           </View>
-          
+
           <View style={styles.section}>
-            <Text style={styles.sectionTitle}>Instructions</Text>
+            <Text style={[styles.sectionTitle, { color: theme.text }]}>Instructions</Text>
             {exercise.instructions.map((instruction, index) => (
               <View key={index} style={styles.instructionItem}>
                 <Text style={styles.instructionNumber}>{index + 1}</Text>
-                <Text style={styles.instructionText}>{instruction}</Text>
+                <Text style={[styles.instructionText, { color: theme.secondaryText }]}>
+                  {instruction}
+                </Text>
               </View>
             ))}
           </View>
-          
+
           {exercise.tips && exercise.tips.length > 0 && (
             <View style={styles.section}>
-              <Text style={styles.sectionTitle}>Tips</Text>
+              <Text style={[styles.sectionTitle, { color: theme.text }]}>Tips</Text>
               {exercise.tips.map((tip, index) => (
                 <View key={index} style={styles.tipItem}>
-                  <Text style={styles.tipText}>• {tip}</Text>
+                  <Text style={[styles.tipText, { color: theme.secondaryText }]}>
+                    • {tip}
+                  </Text>
                 </View>
               ))}
             </View>
           )}
-          
+
           {exercise.commonMistakes && exercise.commonMistakes.length > 0 && (
             <View style={styles.section}>
-              <Text style={styles.sectionTitle}>Common Mistakes</Text>
+              <Text style={[styles.sectionTitle, { color: theme.text }]}>Common Mistakes</Text>
               {exercise.commonMistakes.map((mistake, index) => (
                 <View key={index} style={styles.mistakeItem}>
-                  <Text style={styles.mistakeText}>• {mistake}</Text>
+                  <Text style={[styles.mistakeText, { color: theme.secondaryText }]}>
+                    • {mistake}
+                  </Text>
                 </View>
               ))}
             </View>
@@ -151,11 +168,9 @@ export default function ExerciseDetailScreen() {
 const styles = StyleSheet.create({
   safeArea: {
     flex: 1,
-    backgroundColor: '#fff',
   },
   container: {
     flex: 1,
-    backgroundColor: '#fff',
   },
   loadingContainer: {
     flex: 1,
@@ -164,7 +179,6 @@ const styles = StyleSheet.create({
   },
   loadingText: {
     fontSize: 16,
-    color: '#666',
     fontFamily: 'Poppins-Regular',
   },
   errorContainer: {
@@ -175,7 +189,6 @@ const styles = StyleSheet.create({
   },
   errorText: {
     fontSize: 18,
-    color: '#666',
     marginBottom: 16,
     fontFamily: 'Poppins-Regular',
   },
@@ -222,7 +235,6 @@ const styles = StyleSheet.create({
   title: {
     fontSize: 24,
     fontWeight: '700',
-    color: '#333',
     marginBottom: 16,
     fontFamily: 'Poppins-Bold',
   },
@@ -235,7 +247,6 @@ const styles = StyleSheet.create({
   tag: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#f5f5f5',
     paddingHorizontal: 12,
     paddingVertical: 6,
     borderRadius: 16,
@@ -243,7 +254,6 @@ const styles = StyleSheet.create({
   },
   tagText: {
     fontSize: 14,
-    color: '#666',
     fontFamily: 'Poppins-Medium',
     textTransform: 'capitalize',
   },
@@ -253,13 +263,11 @@ const styles = StyleSheet.create({
   sectionTitle: {
     fontSize: 18,
     fontWeight: '600',
-    color: '#333',
     marginBottom: 12,
     fontFamily: 'Poppins-SemiBold',
   },
   description: {
     fontSize: 16,
-    color: '#666',
     lineHeight: 24,
     fontFamily: 'Poppins-Regular',
   },
@@ -284,7 +292,6 @@ const styles = StyleSheet.create({
   instructionText: {
     flex: 1,
     fontSize: 16,
-    color: '#666',
     lineHeight: 24,
     fontFamily: 'Poppins-Regular',
   },
@@ -293,7 +300,6 @@ const styles = StyleSheet.create({
   },
   tipText: {
     fontSize: 16,
-    color: '#666',
     lineHeight: 24,
     fontFamily: 'Poppins-Regular',
   },
@@ -302,7 +308,6 @@ const styles = StyleSheet.create({
   },
   mistakeText: {
     fontSize: 16,
-    color: '#666',
     lineHeight: 24,
     fontFamily: 'Poppins-Regular',
   },
